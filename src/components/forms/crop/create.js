@@ -32,18 +32,38 @@ import SelectInput from "@/components/inputs/selectInput";
 import { getCurrentLocation } from "@/utils";
 
 // Constants
-import { LANGUAGES, PAYMENT_TERMS } from "@/constants";
+import {
+  CROPS,
+  LANGUAGES,
+  PAYMENT_TERMS,
+  COCONUT_VARIETIES,
+  IPM_ORGANIC_TYPES,
+  TURMERIC_VARIETIES,
+  TURMERIC_POLISHED_TYPES,
+} from "@/constants";
 
 const schema = z.object({
   farmerName: z.string().min(1, "Farmer name is required"),
+
   mobileNumber: z
     .string()
     .min(10, "Mobile number must be exactly 10 digits")
     .max(10, "Mobile number must be exactly 10 digits"),
-  language: z.string().min(1, "Language is required"),
-  paymentTerms: z.string().min(1, "Payment terms are required"),
+
+  language: z
+    .string()
+    .nullable()
+    .refine((val) => val !== "", "Language is required"),
+
+  paymentTerms: z
+    .string()
+    .nullable()
+    .refine((val) => val !== "", "Payment terms are required"),
+
   isTenderCoconutFarm: z.boolean(),
+
   isDryCoconutFarm: z.boolean(),
+
   generalHarvestCycleInDays: z
     .number()
     .nonnegative("Please enter a valid general harvest cycle in days")
@@ -55,24 +75,34 @@ const schema = z.object({
       (value) => !isNaN(value),
       "General harvest cycle in days must be a valid number"
     ),
+
   village: z.string().min(1, "Village is required"),
-  isOrganic: z.boolean(),
-  variety: z.string().min(1, "Variety is required"),
+
+  isOrganic: z.boolean().nullable(),
+
+  variety: z
+    .string()
+    .nullable()
+    .refine((val) => val !== "", "Variety is required"),
+
   numberOfTrees: z
     .number()
     .nonnegative("Please enter a valid number of trees")
     .refine((value) => value !== 0, "Number of trees can not be zero")
     .refine((value) => !isNaN(value), "Number of trees must be a valid number"),
+
   heightOfTree: z
     .number()
     .nonnegative("Please enter a valid height of tree")
     .refine((value) => value !== 0, "Height of tree can not be zero")
     .refine((value) => !isNaN(value), "Height of tree must be a valid number"),
+
   ageOfTree: z
     .number()
     .nonnegative("Please enter a valid age of tree")
     .refine((value) => value !== 0, "Age of tree can not be zero")
     .refine((value) => !isNaN(value), "Age of tree must be a valid number"),
+
   chutePercentage: z
     .number()
     .nonnegative("Please enter a valid chute percentage")
@@ -80,11 +110,13 @@ const schema = z.object({
       (value) => !isNaN(value),
       "Chute percentage must be a valid number"
     ),
+
   numberOfNuts: z
     .number()
     .nonnegative("Please enter a valid number of nuts")
     .refine((value) => value !== 0, "Number of nuts can not be zero")
     .refine((value) => !isNaN(value), "Number of nuts must be a valid number"),
+
   nutsFromLastHarvest: z
     .number()
     .nonnegative("Please enter a valid nuts from last harvest")
@@ -93,7 +125,22 @@ const schema = z.object({
       (value) => !isNaN(value),
       "Nuts from last harvest must be a valid number"
     ),
-  cropsAvailable: z.string().min(1, "Crops available is required"),
+
+  cropsAvailable: z.array(z.string()).min(1, "Crops available is required"),
+
+  numberOfAcres: z.number().nonnegative("Please enter a valid number of acres"),
+  /* .refine((value) => value !== 0, "Number of acres can not be zero") */
+  /* .refine((value) => !isNaN(value), "Number of acres must be a valid number"), */
+
+  turmericVariety: z.string().nullable(),
+  /* .refine((value) => value !== "", "Variety is required"), */
+
+  polishedType: z.string().nullable(),
+  /* .refine((value) => value !== "", "Polished type is required"), */
+
+  ipmOrOrganic: z.string().nullable(),
+  /* .refine((value) => value !== "", "IPM Or Oraganic is required"), */
+
   mapLink: z.string().url("Invalid URL"),
 });
 
@@ -102,7 +149,7 @@ const defaultValues = {
   mobileNumber: "",
   language: "",
   paymentTerms: "",
-  isTenderCoconutFarm: false,
+  isTenderCoconutFarm: true,
   isDryCoconutFarm: false,
   generalHarvestCycleInDays: 0,
   village: "",
@@ -114,14 +161,20 @@ const defaultValues = {
   chutePercentage: 0,
   numberOfNuts: 0,
   nutsFromLastHarvest: 0,
-  cropsAvailable: "",
+  cropsAvailable: [],
+  numberOfAcres: 0,
+  turmericVariety: "",
+  polishedType: "",
+  ipmOrOrganic: "",
   mapLink: "",
 };
 
 const Create = ({ fields, refetch, handleModalClose }) => {
   const {
     reset,
+    watch,
     control,
+    setError,
     handleSubmit,
     formState: { errors },
   } = useForm({
@@ -144,7 +197,7 @@ const Create = ({ fields, refetch, handleModalClose }) => {
         mobileNumber = "",
         language = "",
         paymentTerms = "",
-        isTenderCoconutFarm = false,
+        isTenderCoconutFarm = true,
         isDryCoconutFarm = false,
         generalHarvestCycleInDays = 0,
         village = "",
@@ -157,6 +210,10 @@ const Create = ({ fields, refetch, handleModalClose }) => {
         numberOfNuts = 0,
         nutsFromLastHarvest = 0,
         cropsAvailable = [],
+        numberOfAcres = 0,
+        turmericVariety = "",
+        polishedType = "",
+        ipmOrOrganic = "",
         mapLink = "",
         readyToHarvestDate = dayjs(),
         firstLastHarvestDate = dayjs(),
@@ -164,7 +221,7 @@ const Create = ({ fields, refetch, handleModalClose }) => {
 
       const formData = {
         farmerName,
-        mobileNumber,
+        mobileNumber: mobileNumber.replace(/^\+91/, ""),
         language,
         paymentTerms,
         isTenderCoconutFarm,
@@ -179,9 +236,11 @@ const Create = ({ fields, refetch, handleModalClose }) => {
         chutePercentage,
         numberOfNuts,
         nutsFromLastHarvest,
-        cropsAvailable: Array.isArray(cropsAvailable)
-          ? cropsAvailable.join(", ")
-          : "",
+        cropsAvailable: Array.isArray(cropsAvailable) ? cropsAvailable : "",
+        numberOfAcres,
+        turmericVariety,
+        polishedType,
+        ipmOrOrganic,
         mapLink,
       };
 
@@ -195,6 +254,56 @@ const Create = ({ fields, refetch, handleModalClose }) => {
   }, [reset, fields]);
 
   const onSubmit = async (data) => {
+    const {
+      cropsAvailable,
+      numberOfAcres,
+      turmericVariety,
+      polishedType,
+      ipmOrOrganic,
+    } = data;
+
+    if (cropsAvailable.includes("Turmeric")) {
+      let valid = true;
+
+      if (numberOfAcres === 0 || isNaN(numberOfAcres)) {
+        setError("numberOfAcres", {
+          type: "manual",
+          message: "Number of acres can not be zero and must be a valid number",
+        });
+
+        valid = false;
+      }
+
+      if (!turmericVariety || turmericVariety === "") {
+        setError("turmericVariety", {
+          type: "manual",
+          message: "Variety is required",
+        });
+
+        valid = false;
+      }
+
+      if (!polishedType || polishedType === "") {
+        setError("polishedType", {
+          type: "manual",
+          message: "Polished type is required",
+        });
+
+        valid = false;
+      }
+
+      if (!ipmOrOrganic || ipmOrOrganic === "") {
+        setError("ipmOrOrganic", {
+          type: "manual",
+          message: "IPM Or Organic is required",
+        });
+
+        valid = false;
+      }
+
+      if (!valid) return;
+    }
+
     try {
       setLoading(true);
 
@@ -203,7 +312,6 @@ const Create = ({ fields, refetch, handleModalClose }) => {
       const {
         readyToHarvestDate,
         firstLastHarvestDate,
-        cropsAvailable,
         mobileNumber,
         ...rest
       } = data;
@@ -212,15 +320,12 @@ const Create = ({ fields, refetch, handleModalClose }) => {
         ...rest,
         readyToHarvestDate: dayjs(readyToHarvestDate).format("YYYY-MM-DD"),
         firstLastHarvestDate: dayjs(dates.lastHarvestDate).format("YYYY-MM-DD"),
-        cropsAvailable,
         mobileNumber: `+91${mobileNumber}`,
-        cropsAvailable: cropsAvailable.split(",").map((crop) => crop.trim()),
         location: {
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
         },
       };
-
       const reference = await addDoc(collection(db, "crops"), payload);
 
       const id = reference.id;
@@ -242,6 +347,8 @@ const Create = ({ fields, refetch, handleModalClose }) => {
       setLoading(false);
     }
   };
+
+  const crops = watch("cropsAvailable");
 
   return (
     <Container disableGutters className={cx(classes.container)}>
@@ -421,14 +528,18 @@ const Create = ({ fields, refetch, handleModalClose }) => {
             name="variety"
             control={control}
             render={({ field }) => (
-              <TextInput
+              <SelectInput
                 {...field}
                 fullWidth
                 label="Variety*"
                 variant="outlined"
                 error={!!errors.variety}
-                helperText={errors.variety?.message}
-              />
+                message={errors.variety?.message}
+              >
+                {COCONUT_VARIETIES.map((l) => (
+                  <MenuItem value={l.value}>{l.label}</MenuItem>
+                ))}
+              </SelectInput>
             )}
           />
 
@@ -586,17 +697,109 @@ const Create = ({ fields, refetch, handleModalClose }) => {
             name="cropsAvailable"
             control={control}
             render={({ field }) => (
-              <TextInput
+              <SelectInput
                 {...field}
+                multiple
                 fullWidth
                 label="Crops Available*"
                 variant="outlined"
                 error={!!errors.cropsAvailable}
-                helperText={errors.cropsAvailable?.message}
-              />
+                message={errors.cropsAvailable?.message}
+              >
+                {CROPS.map((l) => (
+                  <MenuItem value={l.value}>{l.label}</MenuItem>
+                ))}
+              </SelectInput>
             )}
           />
         </Box>
+
+        {crops.includes("Turmeric") && (
+          <>
+            <FormHeader sx={{ mt: 4 }}>Turmeric Details</FormHeader>
+
+            <Box className={cx(classes.inputWrapper)}>
+              <Controller
+                name="turmericVariety"
+                control={control}
+                render={({ field }) => (
+                  <SelectInput
+                    {...field}
+                    fullWidth
+                    label="Variety*"
+                    variant="outlined"
+                    error={!!errors.turmericVariety}
+                    message={errors.turmericVariety?.message}
+                  >
+                    {TURMERIC_VARIETIES.map((l) => (
+                      <MenuItem value={l.value}>{l.label}</MenuItem>
+                    ))}
+                  </SelectInput>
+                )}
+              />
+
+              <Controller
+                name="numberOfAcres"
+                control={control}
+                render={({ field: { onChange, ...rest } }) => (
+                  <TextInput
+                    {...rest}
+                    fullWidth
+                    type="number"
+                    label="Number Of Acres*"
+                    variant="outlined"
+                    inputProps={{
+                      step: 0.1,
+                    }}
+                    error={!!errors.numberOfAcres}
+                    helperText={errors.numberOfAcres?.message}
+                    onChange={(e) => onChange(parseFloat(e.target.value))}
+                  />
+                )}
+              />
+            </Box>
+
+            <Box className={cx(classes.inputWrapper)}>
+              <Controller
+                name="polishedType"
+                control={control}
+                render={({ field }) => (
+                  <SelectInput
+                    {...field}
+                    fullWidth
+                    label="Polished Type*"
+                    variant="outlined"
+                    error={!!errors.polishedType}
+                    message={errors.polishedType?.message}
+                  >
+                    {TURMERIC_POLISHED_TYPES.map((l) => (
+                      <MenuItem value={l.value}>{l.label}</MenuItem>
+                    ))}
+                  </SelectInput>
+                )}
+              />
+
+              <Controller
+                name="ipmOrOrganic"
+                control={control}
+                render={({ field }) => (
+                  <SelectInput
+                    {...field}
+                    fullWidth
+                    label="IPM Or Oraganic*"
+                    variant="outlined"
+                    error={!!errors.ipmOrOrganic}
+                    message={errors.ipmOrOrganic?.message}
+                  >
+                    {IPM_ORGANIC_TYPES.map((l) => (
+                      <MenuItem value={l.value}>{l.label}</MenuItem>
+                    ))}
+                  </SelectInput>
+                )}
+              />
+            </Box>
+          </>
+        )}
 
         <FormHeader sx={{ mt: 4 }}>Additional Details</FormHeader>
 
