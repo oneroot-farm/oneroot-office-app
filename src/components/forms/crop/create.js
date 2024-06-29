@@ -29,7 +29,7 @@ import TextInput from "@/components/inputs/textInput";
 import SelectInput from "@/components/inputs/selectInput";
 
 // Utils
-import { getCurrentLocation } from "@/utils";
+import { areCoordinates, getCurrentLocation } from "@/utils";
 
 // Constants
 import {
@@ -126,7 +126,7 @@ const schema = z.object({
       "Nuts from last harvest must be a valid number"
     ),
 
-  cropsAvailable: z.array(z.string()).min(1, "Crops available is required"),
+  cropsAvailable: z.array(z.string()),
 
   numberOfAcres: z.number().nonnegative("Please enter a valid number of acres"),
   /* .refine((value) => value !== 0, "Number of acres can not be zero") */
@@ -141,7 +141,9 @@ const schema = z.object({
   ipmOrOrganic: z.string().nullable(),
   /* .refine((value) => value !== "", "IPM Or Oraganic is required"), */
 
-  mapLink: z.string().url("Invalid URL"),
+  mapLink: z.string().optional(),
+
+  coords: z.string().optional(),
 });
 
 const defaultValues = {
@@ -167,6 +169,7 @@ const defaultValues = {
   polishedType: "",
   ipmOrOrganic: "",
   mapLink: "",
+  coords: "",
 };
 
 const Create = ({ fields, refetch, handleModalClose }) => {
@@ -175,6 +178,7 @@ const Create = ({ fields, refetch, handleModalClose }) => {
     watch,
     control,
     setError,
+    setValue,
     handleSubmit,
     formState: { errors },
   } = useForm({
@@ -215,6 +219,7 @@ const Create = ({ fields, refetch, handleModalClose }) => {
         polishedType = "",
         ipmOrOrganic = "",
         mapLink = "",
+        location = { latitude: null, longitude: null },
         readyToHarvestDate = dayjs(),
         firstLastHarvestDate = dayjs(),
       } = fields;
@@ -246,6 +251,12 @@ const Create = ({ fields, refetch, handleModalClose }) => {
 
       reset(formData);
 
+      if (location && location.latitude && location.longitude) {
+        const coords = `${location.latitude}, ${location.longitude}`;
+
+        setValue("coords", coords);
+      }
+
       setDates({
         readyToHarvestDate: dayjs(readyToHarvestDate),
         lastHarvestDate: dayjs(firstLastHarvestDate),
@@ -260,6 +271,8 @@ const Create = ({ fields, refetch, handleModalClose }) => {
       turmericVariety,
       polishedType,
       ipmOrOrganic,
+      mapLink,
+      coords,
     } = data;
 
     if (cropsAvailable.includes("Turmeric")) {
@@ -304,10 +317,49 @@ const Create = ({ fields, refetch, handleModalClose }) => {
       if (!valid) return;
     }
 
+    if (coords) {
+      const point = /^\s*-?\d+\.\d+\s*,\s*-?\d+\.\d+\s*$/;
+
+      if (!point.test(coords) && !areCoordinates(coords)) {
+        setError("coords", {
+          type: "manual",
+          message: "Coordinates must be in 'latitude, longitude' format",
+        });
+
+        return;
+      }
+    }
+
+    if (mapLink) {
+      const url = /^(ftp|http|https):\/\/[^ "]+$/;
+
+      if (!url.test(mapLink)) {
+        setError("mapLink", {
+          type: "manual",
+          message: "Map Link is not a valid URL",
+        });
+
+        return;
+      }
+    }
+
     try {
       setLoading(true);
 
-      const position = await getCurrentLocation();
+      let position = null;
+
+      if (coords && areCoordinates(coords)) {
+        const [lat, lng] = coords.split(",");
+
+        position = {
+          coords: {
+            latitude: parseFloat(lat),
+            longitude: parseFloat(lng),
+          },
+        };
+      } else {
+        position = await getCurrentLocation();
+      }
 
       const {
         readyToHarvestDate,
@@ -326,6 +378,7 @@ const Create = ({ fields, refetch, handleModalClose }) => {
           longitude: position.coords.longitude,
         },
       };
+
       const reference = await addDoc(collection(db, "crops"), payload);
 
       const id = reference.id;
@@ -612,7 +665,7 @@ const Create = ({ fields, refetch, handleModalClose }) => {
                 {...rest}
                 fullWidth
                 type="number"
-                label="Chute Percentage*"
+                label="Chute Percentage"
                 variant="outlined"
                 inputProps={{
                   step: 0.1,
@@ -701,7 +754,7 @@ const Create = ({ fields, refetch, handleModalClose }) => {
                 {...field}
                 multiple
                 fullWidth
-                label="Crops Available*"
+                label="Crops Available"
                 variant="outlined"
                 error={!!errors.cropsAvailable}
                 message={errors.cropsAvailable?.message}
@@ -805,13 +858,31 @@ const Create = ({ fields, refetch, handleModalClose }) => {
 
         <Box className={cx(classes.inputWrapper)}>
           <Controller
+            name="coords"
+            control={control}
+            render={({ field }) => (
+              <TextInput
+                {...field}
+                fullWidth
+                label="Coordinates"
+                variant="outlined"
+                error={!!errors.coords}
+                helperText={
+                  errors.coords?.message ||
+                  "Captures current location if not provided"
+                }
+              />
+            )}
+          />
+
+          <Controller
             name="mapLink"
             control={control}
             render={({ field }) => (
               <TextInput
                 {...field}
                 fullWidth
-                label="Map Link*"
+                label="Map Link"
                 variant="outlined"
                 error={!!errors.mapLink}
                 helperText={errors.mapLink?.message}

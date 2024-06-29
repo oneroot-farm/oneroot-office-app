@@ -156,3 +156,17 @@ export const getTimeframeDates = (timeframe) => {
     },
   }[timeframe];
 };
+
+export const areCoordinates = (coords) => {
+  const [lat, lng] = coords.split(",");
+
+  return !isNaN(parseFloat(lat)) && !isNaN(parseFloat(lng));
+};
+
+export const openGoogleMapUrl = (latitude, longitude) => {
+  if (!latitude || !longitude) return;
+
+  const url = `https://maps.google.com/maps?q=${latitude},${longitude}`;
+
+  window.open(url, "_blank");
+};

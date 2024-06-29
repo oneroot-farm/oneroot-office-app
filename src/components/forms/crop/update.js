@@ -28,6 +28,9 @@ import FormFooter from "@/components/forms/components/formFooter";
 import TextInput from "@/components/inputs/textInput";
 import SelectInput from "@/components/inputs/selectInput";
 
+// Utils
+import { areCoordinates } from "@/utils";
+
 // Constants
 import {
   CROPS,
@@ -123,7 +126,7 @@ const schema = z.object({
       "Nuts from last harvest must be a valid number"
     ),
 
-  cropsAvailable: z.array(z.string()).min(1, "Crops available is required"),
+  cropsAvailable: z.array(z.string()),
 
   numberOfAcres: z.number().nonnegative("Please enter a valid number of acres"),
   /* .refine((value) => value !== 0, "Number of acres can not be zero") */
@@ -138,7 +141,9 @@ const schema = z.object({
   ipmOrOrganic: z.string().nullable(),
   /* .refine((value) => value !== "", "IPM Or Oraganic is required"), */
 
-  mapLink: z.string().url("Invalid URL"),
+  mapLink: z.string().optional(),
+
+  coords: z.string().optional(),
 });
 
 const defaultValues = {
@@ -164,6 +169,7 @@ const defaultValues = {
   polishedType: "",
   ipmOrOrganic: "",
   mapLink: "",
+  coords: "",
 };
 
 const Update = ({ fields, refetch, handleModalClose }) => {
@@ -171,6 +177,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
     reset,
     watch,
     control,
+    setValue,
     handleSubmit,
     formState: { errors },
   } = useForm({
@@ -211,6 +218,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
         polishedType = "",
         ipmOrOrganic = "",
         mapLink = "",
+        location = { latitude: null, longitude: null },
         readyToHarvestDate = dayjs(),
         firstLastHarvestDate = dayjs(),
       } = fields;
@@ -242,6 +250,12 @@ const Update = ({ fields, refetch, handleModalClose }) => {
 
       reset(formData);
 
+      if (location && location.latitude && location.longitude) {
+        const coords = `${location.latitude}, ${location.longitude}`;
+
+        setValue("coords", coords);
+      }
+
       setDates({
         readyToHarvestDate: dayjs(readyToHarvestDate),
         lastHarvestDate: dayjs(firstLastHarvestDate),
@@ -256,6 +270,8 @@ const Update = ({ fields, refetch, handleModalClose }) => {
       turmericVariety,
       polishedType,
       ipmOrOrganic,
+      mapLink,
+      coords,
     } = data;
 
     if (cropsAvailable.includes("Turmeric")) {
@@ -300,6 +316,32 @@ const Update = ({ fields, refetch, handleModalClose }) => {
       if (!valid) return;
     }
 
+    if (coords) {
+      const point = /^\s*-?\d+\.\d+\s*,\s*-?\d+\.\d+\s*$/;
+
+      if (!point.test(coords) && !areCoordinates(coords)) {
+        setError("coords", {
+          type: "manual",
+          message: "Coordinates are not valid",
+        });
+
+        return;
+      }
+    }
+
+    if (mapLink) {
+      const url = /^(ftp|http|https):\/\/[^ "]+$/;
+
+      if (!url.test(mapLink)) {
+        setError("mapLink", {
+          type: "manual",
+          message: "Map Link is not a valid URL",
+        });
+
+        return;
+      }
+    }
+
     try {
       setLoading(true);
 
@@ -316,6 +358,28 @@ const Update = ({ fields, refetch, handleModalClose }) => {
         firstLastHarvestDate: dayjs(dates.lastHarvestDate).format("YYYY-MM-DD"),
         mobileNumber: `+91${mobileNumber}`,
       };
+
+      if (coords && areCoordinates(coords)) {
+        const [lat, lng] = coords.split(",");
+
+        payload.location = {
+          latitude: parseFloat(lat),
+          longitude: parseFloat(lng),
+        };
+      } else {
+        const position = await getCurrentLocation();
+
+        payload.location = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        };
+      }
+
+      if (fields && fields?.tags) {
+        const updatedTags = fields.tags.filter((t) => t !== "need-location");
+
+        payload.tags = updatedTags;
+      }
 
       const reference = doc(db, "crops", fields.id);
 
@@ -599,7 +663,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                 {...rest}
                 fullWidth
                 type="number"
-                label="Chute Percentage*"
+                label="Chute Percentage"
                 variant="outlined"
                 inputProps={{
                   step: 0.1,
@@ -666,14 +730,16 @@ const Update = ({ fields, refetch, handleModalClose }) => {
           <Controller
             name="nutsFromLastHarvest"
             control={control}
-            render={({ field }) => (
+            render={({ field: { onChange, ...rest } }) => (
               <TextInput
-                {...field}
+                {...rest}
                 fullWidth
+                type="number"
                 label="Nuts From Last Harvest*"
                 variant="outlined"
                 error={!!errors.nutsFromLastHarvest}
                 helperText={errors.nutsFromLastHarvest?.message}
+                onChange={(e) => onChange(parseInt(e.target.value))}
               />
             )}
           />
@@ -686,7 +752,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                 {...field}
                 multiple
                 fullWidth
-                label="Crops Available*"
+                label="Crops Available"
                 variant="outlined"
                 error={!!errors.cropsAvailable}
                 message={errors.cropsAvailable?.message}
@@ -790,13 +856,31 @@ const Update = ({ fields, refetch, handleModalClose }) => {
 
         <Box className={cx(classes.inputWrapper)}>
           <Controller
+            name="coords"
+            control={control}
+            render={({ field }) => (
+              <TextInput
+                {...field}
+                fullWidth
+                label="Coordinates"
+                variant="outlined"
+                error={!!errors.coords}
+                helperText={
+                  errors.coords?.message ||
+                  "Captures current location if not provided"
+                }
+              />
+            )}
+          />
+
+          <Controller
             name="mapLink"
             control={control}
             render={({ field }) => (
               <TextInput
                 {...field}
                 fullWidth
-                label="Map Link*"
+                label="Map Link"
                 variant="outlined"
                 error={!!errors.mapLink}
                 helperText={errors.mapLink?.message}

@@ -12,7 +12,7 @@ import {
   GridToolbarQuickFilter,
 } from "@mui/x-data-grid";
 
-import { Box, IconButton, CircularProgress } from "@mui/material";
+import { Box, Chip, IconButton, CircularProgress } from "@mui/material";
 
 // Components
 import Modal from "@/components/modal";
@@ -21,8 +21,12 @@ import NoRows from "@/components/noRows";
 // Forms
 import UpdateCropForm from "@/components/forms/crop/update";
 
+// Utils
+import { openGoogleMapUrl } from "@/utils";
+
 // Icons
 import EditIcon from "@mui/icons-material/Edit";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
 
 const CustomToolbar = () => (
   <GridToolbarContainer>
@@ -216,14 +220,43 @@ const Crop = ({ data, isLoading = false, refetch }) => {
         minWidth: 120,
       },
       {
+        field: "tags",
+        headerName: "Tags",
+        flex: 1,
+        minWidth: 120,
+        renderCell: ({ value }) => {
+          if (Array.isArray(value) && value.length > 0) {
+            return (
+              <>
+                {value.map((tag, index) => (
+                  <Chip key={index} label={tag} color="warning" />
+                ))}
+              </>
+            );
+          }
+
+          return "N/A";
+        },
+      },
+      {
         field: "actions",
         headerName: "",
         flex: 1,
         minWidth: 120,
         renderCell: ({ row }) => (
-          <IconButton onClick={() => handleUpdateCrop(row)}>
-            <EditIcon />
-          </IconButton>
+          <Box display={"flex"} gap={2}>
+            <IconButton onClick={() => handleUpdateCrop(row)}>
+              <EditIcon />
+            </IconButton>
+
+            <IconButton
+              onClick={() =>
+                openGoogleMapUrl(row.location.latitude, row.location.longitude)
+              }
+            >
+              <LocationOnIcon />
+            </IconButton>
+          </Box>
         ),
       },
     ];
@@ -261,6 +294,8 @@ const Crop = ({ data, isLoading = false, refetch }) => {
                 thirdLastHarvestDate: false,
                 cropsAvailable: false,
                 /* village: false, */
+                ageOfTree: false,
+                heightOfTree: false,
                 isTenderCoconutFarm: false,
                 isDryCoconutFarm: false,
                 generalHarvestCycleInDays: false,
