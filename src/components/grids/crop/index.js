@@ -249,7 +249,12 @@ const Crop = ({ data, isLoading = false, refetch }) => {
             return (
               <>
                 {value.map((tag, index) => (
-                  <Chip key={index} label={tag} color="warning" />
+                  <Chip
+                    key={index}
+                    label={tag}
+                    variant="outlined"
+                    color="warning"
+                  />
                 ))}
               </>
             );
@@ -262,9 +267,9 @@ const Crop = ({ data, isLoading = false, refetch }) => {
         field: "actions",
         headerName: "",
         flex: 1,
-        minWidth: 120,
+        minWidth: 150,
         renderCell: ({ row }) => (
-          <Box display={"flex"} gap={1.5}>
+          <Box display={"flex"} gap={1.25}>
             <IconButton onClick={() => handleUpdateCrop(row)}>
               <EditIcon />
             </IconButton>

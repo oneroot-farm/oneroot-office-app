@@ -141,6 +141,11 @@ export const getTimeframeDates = (timeframe) => {
   const thisWeekEnd = new Date(today);
   thisWeekEnd.setDate(today.getDate() + 6);
 
+  const lastWeekStart = new Date(today);
+  lastWeekStart.setDate(today.getDate() - 7);
+  const lastWeekEnd = new Date(today);
+  lastWeekEnd.setDate(today.getDate() - 1);
+
   return {
     today: {
       startDate: Timestamp.fromDate(today),
@@ -153,6 +158,10 @@ export const getTimeframeDates = (timeframe) => {
     thisWeek: {
       startDate: Timestamp.fromDate(thisWeekStart),
       endDate: Timestamp.fromDate(thisWeekEnd),
+    },
+    lastWeek: {
+      startDate: Timestamp.fromDate(lastWeekStart),
+      endDate: Timestamp.fromDate(lastWeekEnd),
     },
   }[timeframe];
 };
