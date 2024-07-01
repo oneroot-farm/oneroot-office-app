@@ -2,9 +2,15 @@
 
 import Box from "@mui/material/Box";
 
-const FormFooter = ({ children }) => {
+const FormFooter = ({ children, ...props }) => {
   return (
-    <Box my={2} display="flex" alignItems="center" justifyContent="center">
+    <Box
+      my={2}
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      {...props}
+    >
       {children}
     </Box>
   );

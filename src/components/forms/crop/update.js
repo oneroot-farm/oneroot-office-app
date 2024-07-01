@@ -873,7 +873,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
             )}
           />
 
-          <Controller
+          {/* <Controller
             name="mapLink"
             control={control}
             render={({ field }) => (
@@ -886,7 +886,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                 helperText={errors.mapLink?.message}
               />
             )}
-          />
+          /> */}
         </Box>
 
         <FormFooter>

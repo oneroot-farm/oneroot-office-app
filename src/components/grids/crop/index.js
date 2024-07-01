@@ -20,6 +20,7 @@ import NoRows from "@/components/noRows";
 
 // Forms
 import UpdateCropForm from "@/components/forms/crop/update";
+import ConfirmQCRequest from "@/components/forms/qc/confirm";
 
 // Utils
 import { openGoogleMapUrl } from "@/utils";
@@ -27,6 +28,7 @@ import { openGoogleMapUrl } from "@/utils";
 // Icons
 import EditIcon from "@mui/icons-material/Edit";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
+import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 
 const CustomToolbar = () => (
   <GridToolbarContainer>
@@ -55,8 +57,12 @@ const Crop = ({ data, isLoading = false, refetch }) => {
   const { classes } = useStyles();
 
   const [crop, setCrop] = useState(null);
+
   const [modal, setModal] = useState({
     update: false,
+  });
+  const [confirm, setConfirm] = useState({
+    qc: false,
   });
 
   // function to open a modal
@@ -66,10 +72,24 @@ const Crop = ({ data, isLoading = false, refetch }) => {
   const closeModal = (state) =>
     setModal((prev) => ({ ...prev, [state]: false }));
 
+  // function to show a confirmation
+  const showConfirmation = (state) =>
+    setConfirm((prev) => ({ ...prev, [state]: true }));
+
+  // function to dismiss a confirmation
+  const dismissConfirmation = (state) =>
+    setConfirm((prev) => ({ ...prev, [state]: false }));
+
   const handleUpdateCrop = (row) => {
     setCrop(row);
 
     openModal("update");
+  };
+
+  const handleCreateQCRequest = (row) => {
+    setCrop(row);
+
+    showConfirmation("qc");
   };
 
   const columns = useMemo(() => {
@@ -244,7 +264,7 @@ const Crop = ({ data, isLoading = false, refetch }) => {
         flex: 1,
         minWidth: 120,
         renderCell: ({ row }) => (
-          <Box display={"flex"} gap={2}>
+          <Box display={"flex"} gap={1.5}>
             <IconButton onClick={() => handleUpdateCrop(row)}>
               <EditIcon />
             </IconButton>
@@ -255,6 +275,10 @@ const Crop = ({ data, isLoading = false, refetch }) => {
               }
             >
               <LocationOnIcon />
+            </IconButton>
+
+            <IconButton onClick={() => handleCreateQCRequest(row)}>
+              <AssignmentTurnedInIcon />
             </IconButton>
           </Box>
         ),
@@ -320,6 +344,20 @@ const Crop = ({ data, isLoading = false, refetch }) => {
           fields={crop}
           refetch={refetch}
           handleModalClose={() => closeModal("update")}
+        />
+      </Modal>
+
+      {/* Create QC Request Confirmation */}
+      <Modal
+        open={confirm.qc}
+        header={"Create QC Request"}
+        modalStyles={{ padding: "1rem" }}
+        handleClose={() => dismissConfirmation("qc")}
+      >
+        <ConfirmQCRequest
+          fields={crop}
+          refetch={refetch}
+          handleModalClose={() => dismissConfirmation("qc")}
         />
       </Modal>
     </>
