@@ -36,6 +36,7 @@ const Confirm = ({ fields, refetch, handleModalClose }) => {
         cropId: fields.id,
         status: "pending",
         userId: null,
+        tags: ["need-location"],
         createdAt: serverTimestamp(),
       };
 
@@ -62,7 +63,8 @@ const Confirm = ({ fields, refetch, handleModalClose }) => {
   return (
     <Container disableGutters className={cx(classes.container)}>
       <FormHeader sx={{ mt: 4 }}>
-        Are you sure you want to create new QC request ?
+        Are you sure you want to create a new QC request for {fields?.farmName}{" "}
+        ?
       </FormHeader>
 
       <FormFooter sx={{ gap: 2 }}>

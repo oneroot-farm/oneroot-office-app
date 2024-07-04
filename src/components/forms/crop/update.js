@@ -20,6 +20,7 @@ import { doc, updateDoc } from "firebase/firestore";
 
 // Components
 import Loader from "@/components/loader";
+import DocPicker from "@/components/docPicker";
 import DatePicker from "@/components/datePicker";
 import FormHeader from "@/components/forms/components/formHeader";
 import FormFooter from "@/components/forms/components/formFooter";
@@ -29,7 +30,11 @@ import TextInput from "@/components/inputs/textInput";
 import SelectInput from "@/components/inputs/selectInput";
 
 // Utils
-import { areCoordinates } from "@/utils";
+import {
+  areCoordinates,
+  getCurrentLocation,
+  uploadFilesHandler,
+} from "@/utils";
 
 // Constants
 import {
@@ -144,6 +149,8 @@ const schema = z.object({
   mapLink: z.string().optional(),
 
   coords: z.string().optional(),
+
+  notes: z.string().optional(),
 });
 
 const defaultValues = {
@@ -170,6 +177,7 @@ const defaultValues = {
   ipmOrOrganic: "",
   mapLink: "",
   coords: "",
+  notes: "",
 };
 
 const Update = ({ fields, refetch, handleModalClose }) => {
@@ -185,6 +193,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
     resolver: zodResolver(schema),
   });
 
+  const [files, setFiles] = useState([]);
   const [dates, setDates] = useState({
     readyToHarvestDate: dayjs(),
     lastHarvestDate: dayjs(),
@@ -218,6 +227,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
         polishedType = "",
         ipmOrOrganic = "",
         mapLink = "",
+        notes = "",
         location = { latitude: null, longitude: null },
         readyToHarvestDate = dayjs(),
         firstLastHarvestDate = dayjs(),
@@ -246,6 +256,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
         polishedType,
         ipmOrOrganic,
         mapLink,
+        notes,
       };
 
       reset(formData);
@@ -262,6 +273,10 @@ const Update = ({ fields, refetch, handleModalClose }) => {
       });
     }
   }, [reset, fields]);
+
+  const handleFileUpload = (files) => {
+    setFiles(files);
+  };
 
   const onSubmit = async (data) => {
     const {
@@ -345,19 +360,18 @@ const Update = ({ fields, refetch, handleModalClose }) => {
     try {
       setLoading(true);
 
-      const {
-        readyToHarvestDate,
-        firstLastHarvestDate,
-        mobileNumber,
-        ...rest
-      } = data;
+      const { mobileNumber, ...rest } = data;
 
       const payload = {
         ...rest,
-        readyToHarvestDate: dayjs(readyToHarvestDate).format("YYYY-MM-DD"),
+        readyToHarvestDate: dayjs(dates.readyToHarvestDate).format(
+          "YYYY-MM-DD"
+        ),
         firstLastHarvestDate: dayjs(dates.lastHarvestDate).format("YYYY-MM-DD"),
         mobileNumber: `+91${mobileNumber}`,
       };
+
+      let tags = fields?.tags ? [...fields.tags] : [];
 
       if (coords && areCoordinates(coords)) {
         const [lat, lng] = coords.split(",");
@@ -366,6 +380,10 @@ const Update = ({ fields, refetch, handleModalClose }) => {
           latitude: parseFloat(lat),
           longitude: parseFloat(lng),
         };
+
+        if (fields && fields?.tags) {
+          tags = tags.filter((t) => t !== "need-location");
+        }
       } else {
         const position = await getCurrentLocation();
 
@@ -375,11 +393,23 @@ const Update = ({ fields, refetch, handleModalClose }) => {
         };
       }
 
-      if (fields && fields?.tags) {
-        const updatedTags = fields.tags.filter((t) => t !== "need-location");
-
-        payload.tags = updatedTags;
+      if (
+        fields &&
+        fields?.readyToHarvestDate !==
+          dayjs(dates.readyToHarvestDate).format("YYYY-MM-DD")
+      ) {
+        tags = tags.filter((t) => t !== "need-RTHD");
       }
+
+      if (files && files.length > 0) {
+        const images = Array.from(files);
+
+        const urls = await uploadFilesHandler(images, "farm-images");
+
+        payload.images = urls;
+      }
+
+      payload.tags = tags;
 
       const reference = doc(db, "crops", fields.id);
 
@@ -479,6 +509,12 @@ const Update = ({ fields, refetch, handleModalClose }) => {
         </Box>
 
         <FormHeader sx={{ mt: 4 }}>Farm Details</FormHeader>
+
+        <DocPicker
+          sx={{ mb: 2.5 }}
+          files={files}
+          handleFileUpload={handleFileUpload}
+        />
 
         <Box className={cx(classes.inputWrapper)}>
           <Controller
@@ -887,6 +923,21 @@ const Update = ({ fields, refetch, handleModalClose }) => {
               />
             )}
           /> */}
+
+          <Controller
+            name="notes"
+            control={control}
+            render={({ field }) => (
+              <TextInput
+                {...field}
+                fullWidth
+                label="Notes"
+                variant="outlined"
+                error={!!errors.notes}
+                helperText={errors.notes?.message}
+              />
+            )}
+          />
         </Box>
 
         <FormFooter>

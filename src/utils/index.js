@@ -2,6 +2,12 @@ import dayjs from "dayjs";
 import Cookies from "js-cookie";
 
 import { Timestamp } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+
+import ImageCompression from "browser-image-compression";
+
+// Firebase
+import { storage } from "@/firebase";
 
 export const getUserAgent = () => {
   const { appName, appVersion, platform } = navigator;
@@ -178,4 +184,34 @@ export const openGoogleMapUrl = (latitude, longitude) => {
   const url = `https://maps.google.com/maps?q=${latitude},${longitude}`;
 
   window.open(url, "_blank");
+};
+
+export const fileCompressHandler = async (file) => {
+  const options = {
+    maxSizeMB: 1,
+    maxWidthOrHeight: 1920,
+    useWebWorker: true,
+  };
+
+  try {
+    const result = await ImageCompression(file, options);
+
+    return result;
+  } catch (error) {
+    console.error("Error compressing image:", error);
+  }
+};
+
+export const uploadFilesHandler = (files, path) => {
+  const promises = files.map(async (file) => {
+    const result = await fileCompressHandler(file);
+
+    const reference = ref(storage, `${path}/${file.name}`);
+
+    const snapshot = await uploadBytes(reference, result);
+
+    return getDownloadURL(snapshot.ref);
+  });
+
+  return Promise.all(promises);
 };

@@ -29,7 +29,7 @@ import ReservationGrid from "@/components/grids/reservation";
 import { getTimeframeDates } from "@/utils";
 
 // Constants
-import { TIMEFRAMES } from "@/constants";
+import { TIMEFRAMES as BASE_TIMEFRAMES } from "@/constants";
 
 const schema = z.object({
   timeframe: z.string().nonempty("Timeframe is required"),
@@ -49,6 +49,11 @@ const Reservations = () => {
     defaultValues,
     resolver: zodResolver(schema),
   });
+
+  const TIMEFRAMES = [
+    { id: 4, label: "Last Week", value: "lastWeek" },
+    ...BASE_TIMEFRAMES,
+  ];
 
   const [reservations, setReservations] = useState([]);
   const [isLoading, setIsLoading] = useState(false);

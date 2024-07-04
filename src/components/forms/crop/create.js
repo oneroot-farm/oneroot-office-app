@@ -20,6 +20,7 @@ import { doc, addDoc, updateDoc, collection } from "firebase/firestore";
 
 // Components
 import Loader from "@/components/loader";
+import DocPicker from "@/components/docPicker";
 import DatePicker from "@/components/datePicker";
 import FormHeader from "@/components/forms/components/formHeader";
 import FormFooter from "@/components/forms/components/formFooter";
@@ -29,7 +30,11 @@ import TextInput from "@/components/inputs/textInput";
 import SelectInput from "@/components/inputs/selectInput";
 
 // Utils
-import { areCoordinates, getCurrentLocation } from "@/utils";
+import {
+  areCoordinates,
+  getCurrentLocation,
+  uploadFilesHandler,
+} from "@/utils";
 
 // Constants
 import {
@@ -144,6 +149,8 @@ const schema = z.object({
   mapLink: z.string().optional(),
 
   coords: z.string().optional(),
+
+  notes: z.string().optional(),
 });
 
 const defaultValues = {
@@ -170,6 +177,7 @@ const defaultValues = {
   ipmOrOrganic: "",
   mapLink: "",
   coords: "",
+  notes: "",
 };
 
 const Create = ({ fields, refetch, handleModalClose }) => {
@@ -186,6 +194,7 @@ const Create = ({ fields, refetch, handleModalClose }) => {
     resolver: zodResolver(schema),
   });
 
+  const [files, setFiles] = useState([]);
   const [dates, setDates] = useState({
     readyToHarvestDate: dayjs(),
     lastHarvestDate: dayjs(),
@@ -219,6 +228,7 @@ const Create = ({ fields, refetch, handleModalClose }) => {
         polishedType = "",
         ipmOrOrganic = "",
         mapLink = "",
+        notes = "",
         location = { latitude: null, longitude: null },
         readyToHarvestDate = dayjs(),
         firstLastHarvestDate = dayjs(),
@@ -247,6 +257,7 @@ const Create = ({ fields, refetch, handleModalClose }) => {
         polishedType,
         ipmOrOrganic,
         mapLink,
+        notes,
       };
 
       reset(formData);
@@ -263,6 +274,10 @@ const Create = ({ fields, refetch, handleModalClose }) => {
       });
     }
   }, [reset, fields]);
+
+  const handleFileUpload = (files) => {
+    setFiles(files);
+  };
 
   const onSubmit = async (data) => {
     const {
@@ -361,16 +376,13 @@ const Create = ({ fields, refetch, handleModalClose }) => {
         position = await getCurrentLocation();
       }
 
-      const {
-        readyToHarvestDate,
-        firstLastHarvestDate,
-        mobileNumber,
-        ...rest
-      } = data;
+      const { mobileNumber, ...rest } = data;
 
       const payload = {
         ...rest,
-        readyToHarvestDate: dayjs(readyToHarvestDate).format("YYYY-MM-DD"),
+        readyToHarvestDate: dayjs(dates.readyToHarvestDate).format(
+          "YYYY-MM-DD"
+        ),
         firstLastHarvestDate: dayjs(dates.lastHarvestDate).format("YYYY-MM-DD"),
         mobileNumber: `+91${mobileNumber}`,
         location: {
@@ -378,6 +390,16 @@ const Create = ({ fields, refetch, handleModalClose }) => {
           longitude: position.coords.longitude,
         },
       };
+
+      if (files && files.length > 0) {
+        const images = Array.from(files);
+
+        const urls = await uploadFilesHandler(images, "farm-images");
+
+        payload.images = urls;
+      } else {
+        payload.images = [];
+      }
 
       const reference = await addDoc(collection(db, "crops"), payload);
 
@@ -481,6 +503,12 @@ const Create = ({ fields, refetch, handleModalClose }) => {
         </Box>
 
         <FormHeader sx={{ mt: 4 }}>Farm Details</FormHeader>
+
+        <DocPicker
+          sx={{ mb: 2.5 }}
+          files={files}
+          handleFileUpload={handleFileUpload}
+        />
 
         <Box className={cx(classes.inputWrapper)}>
           <Controller
@@ -889,6 +917,21 @@ const Create = ({ fields, refetch, handleModalClose }) => {
               />
             )}
           /> */}
+
+          <Controller
+            name="notes"
+            control={control}
+            render={({ field }) => (
+              <TextInput
+                {...field}
+                fullWidth
+                label="Notes"
+                variant="outlined"
+                error={!!errors.notes}
+                helperText={errors.notes?.message}
+              />
+            )}
+          />
         </Box>
 
         <FormFooter>
@@ -903,7 +946,6 @@ const Create = ({ fields, refetch, handleModalClose }) => {
         </FormFooter>
       </form>
 
-      {/* Loader */}
       <Loader open={loading} />
     </Container>
   );

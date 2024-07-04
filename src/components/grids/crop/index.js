@@ -123,6 +123,7 @@ const Crop = ({ data, isLoading = false, refetch }) => {
         headerName: "Variety",
         flex: 1,
         minWidth: 120,
+        valueFormatter: ({ value }) => value || "N/A",
       },
       {
         field: "numberOfTrees",
@@ -240,6 +241,12 @@ const Crop = ({ data, isLoading = false, refetch }) => {
         minWidth: 120,
       },
       {
+        field: "notes",
+        headerName: "Notes",
+        flex: 1,
+        minWidth: 120,
+      },
+      {
         field: "tags",
         headerName: "Tags",
         flex: 1,
@@ -247,7 +254,7 @@ const Crop = ({ data, isLoading = false, refetch }) => {
         renderCell: ({ value }) => {
           if (Array.isArray(value) && value.length > 0) {
             return (
-              <>
+              <Box className={classes.tags}>
                 {value.map((tag, index) => (
                   <Chip
                     key={index}
@@ -256,7 +263,7 @@ const Crop = ({ data, isLoading = false, refetch }) => {
                     color="warning"
                   />
                 ))}
-              </>
+              </Box>
             );
           }
 
@@ -355,7 +362,7 @@ const Crop = ({ data, isLoading = false, refetch }) => {
       {/* Create QC Request Confirmation */}
       <Modal
         open={confirm.qc}
-        header={"Create QC Request"}
+        header={"Create New QC Request"}
         modalStyles={{ padding: "1rem" }}
         handleClose={() => dismissConfirmation("qc")}
       >
@@ -395,6 +402,12 @@ const useStyles = makeStyles({ name: { Crop } })((theme) => ({
     "& .MuiCheckbox-root": {
       color: `${theme.palette.secondary.dark} !important`,
     },
+  },
+  tags: {
+    gap: 5,
+    padding: 5,
+    display: "flex",
+    overflowY: "auto",
   },
 }));
 
