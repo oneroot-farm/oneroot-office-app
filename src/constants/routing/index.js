@@ -4,7 +4,7 @@
 import CallIcon from "@mui/icons-material/Call";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import AgricultureIcon from "@mui/icons-material/Agriculture";
-/* import ChecklistRtlIcon from "@mui/icons-material/ChecklistRtl"; */
+import ChecklistRtlIcon from "@mui/icons-material/ChecklistRtl";
 import SpaceDashboardIcon from "@mui/icons-material/SpaceDashboard";
 
 export const TOP_MENU = [

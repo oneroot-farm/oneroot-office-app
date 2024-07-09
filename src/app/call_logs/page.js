@@ -142,7 +142,6 @@ const CallLogs = () => {
     }
   };
 
-  /*
   useEffect(() => {
     if (loadReference.current) {
       loadReference.current = false;
@@ -160,7 +159,6 @@ const CallLogs = () => {
       fetchCallLogs(timeframe);
     }
   }, [timeframe]);
-  */
 
   return (
     <Box
