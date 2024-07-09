@@ -227,7 +227,7 @@ const Create = ({ fields, refetch, handleModalClose }) => {
         turmericVariety = "",
         polishedType = "",
         ipmOrOrganic = "",
-        mapLink = "",
+        /* mapLink = "", */
         /* notes = [], */
         location = { latitude: null, longitude: null },
         readyToHarvestDate = dayjs(),
@@ -256,7 +256,7 @@ const Create = ({ fields, refetch, handleModalClose }) => {
         turmericVariety,
         polishedType,
         ipmOrOrganic,
-        mapLink,
+        /* mapLink, */
         /* notes: Array.isArray(notes) ? notes.join(", ") : "", */
       };
 
