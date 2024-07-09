@@ -100,6 +100,14 @@ export const formatTime = (date) => {
   return result;
 };
 
+export const formatDuration = (seconds) => {
+  const minutes = Math.floor(seconds / 60);
+
+  const remainingSeconds = seconds % 60;
+
+  return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
+};
+
 export const capitalizeString = (str) =>
   str.charAt(0).toUpperCase() + str.slice(1);
 
@@ -144,11 +152,13 @@ export const getTimeframeDates = (timeframe) => {
   tomorrow.setDate(today.getDate() + 1);
 
   const thisWeekStart = new Date(today);
+
   const thisWeekEnd = new Date(today);
   thisWeekEnd.setDate(today.getDate() + 6);
 
   const lastWeekStart = new Date(today);
   lastWeekStart.setDate(today.getDate() - 7);
+
   const lastWeekEnd = new Date(today);
   lastWeekEnd.setDate(today.getDate() - 1);
 
@@ -170,6 +180,32 @@ export const getTimeframeDates = (timeframe) => {
       endDate: Timestamp.fromDate(lastWeekEnd),
     },
   }[timeframe];
+};
+
+export const convertToISTString = (date) => {
+  const istOffset = 5.5 * 60 * 60 * 1000;
+
+  const istDate = new Date(date.getTime() + istOffset);
+
+  const yyyy = istDate.getFullYear();
+
+  const mm = String(istDate.getMonth() + 1).padStart(2, "0");
+  const dd = String(istDate.getDate()).padStart(2, "0");
+
+  const hh = String(istDate.getHours()).padStart(2, "0");
+  const min = String(istDate.getMinutes()).padStart(2, "0");
+  const ss = String(istDate.getSeconds()).padStart(2, "0");
+
+  return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
+};
+
+export const compareDate = (first, second) => {
+  if (!first || !second) return false;
+
+  const d1 = dayjs(first, "YYYY-MM-DD");
+  const d2 = dayjs(second, "YYYY-MM-DD");
+
+  return d1.isSame(d2, "day");
 };
 
 export const areCoordinates = (coords) => {

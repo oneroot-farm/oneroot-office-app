@@ -241,12 +241,6 @@ const Crop = ({ data, isLoading = false, refetch }) => {
         minWidth: 120,
       },
       {
-        field: "notes",
-        headerName: "Notes",
-        flex: 1,
-        minWidth: 120,
-      },
-      {
         field: "tags",
         headerName: "Tags",
         flex: 1,

@@ -16,7 +16,7 @@ import Container from "@mui/material/Container";
 
 // Firebase
 import { db } from "@/firebase";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 
 // Components
 import Loader from "@/components/loader";
@@ -186,6 +186,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
     watch,
     control,
     setValue,
+    setError,
     handleSubmit,
     formState: { errors },
   } = useForm({
@@ -227,7 +228,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
         polishedType = "",
         ipmOrOrganic = "",
         mapLink = "",
-        notes = "",
+        /* notes = [], */
         location = { latitude: null, longitude: null },
         readyToHarvestDate = dayjs(),
         firstLastHarvestDate = dayjs(),
@@ -256,7 +257,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
         polishedType,
         ipmOrOrganic,
         mapLink,
-        notes,
+        /* notes: Array.isArray(notes) ? notes.join(", ") : "", */
       };
 
       reset(formData);
@@ -360,7 +361,9 @@ const Update = ({ fields, refetch, handleModalClose }) => {
     try {
       setLoading(true);
 
-      const { mobileNumber, ...rest } = data;
+      const { notes, mobileNumber, ...rest } = data;
+
+      const timestamp = dayjs().format("YYYY-MM-DD HH:mm:ss");
 
       const payload = {
         ...rest,
@@ -414,6 +417,24 @@ const Update = ({ fields, refetch, handleModalClose }) => {
       const reference = doc(db, "crops", fields.id);
 
       await updateDoc(reference, payload);
+
+      const crop = await getDoc(reference);
+
+      if (crop.exists()) {
+        const data = crop.data();
+
+        const existingNotes = data.notes || [];
+
+        const newNotes = notes
+          ? notes.split(",").map((note) => `${timestamp} - ${note.trim()}`)
+          : [];
+
+        await updateDoc(reference, {
+          notes: [...existingNotes, ...newNotes],
+        });
+      } else {
+        console.error("crop record not found");
+      }
 
       toast.success("Record updated successfully!");
 
@@ -934,7 +955,10 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                 label="Notes"
                 variant="outlined"
                 error={!!errors.notes}
-                helperText={errors.notes?.message}
+                helperText={
+                  errors.notes?.message ||
+                  "Separate multiple values with commas (,)"
+                }
               />
             )}
           />

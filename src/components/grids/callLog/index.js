@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useState, useMemo } from "react";
 
 import { makeStyles } from "tss-react/mui";
 import {
@@ -12,13 +12,21 @@ import {
   GridToolbarQuickFilter,
 } from "@mui/x-data-grid";
 
-import { Box, CircularProgress } from "@mui/material";
+import { Box, IconButton, CircularProgress } from "@mui/material";
 
 // Components
+import Modal from "@/components/modal";
 import NoRows from "@/components/noRows";
+import AudioPlayer from "@/components/audioPlayer";
+
+// Forms
+import UpdateCropForm from "@/components/forms/crop/update";
 
 // Utils
-import { convertFromTimestampToDate } from "@/utils";
+import { formatDuration } from "@/utils";
+
+// Icons
+import EditIcon from "@mui/icons-material/Edit";
 
 const CustomToolbar = () => (
   <GridToolbarContainer>
@@ -46,11 +54,31 @@ const CustomToolbar = () => (
 const CallLog = ({ data, isLoading = false, refetch }) => {
   const { classes } = useStyles();
 
+  const [crop, setCrop] = useState(null);
+
+  const [modal, setModal] = useState({
+    update: false,
+  });
+
+  // function to open a modal
+  const openModal = (state) => setModal((prev) => ({ ...prev, [state]: true }));
+
+  // function to close a modal
+  const closeModal = (state) =>
+    setModal((prev) => ({ ...prev, [state]: false }));
+
+  const handleUpdateCrop = (row) => {
+    console.log("Crop : ", row.crop);
+    setCrop(row.crop);
+
+    openModal("update");
+  };
+
   const columns = useMemo(() => {
     return [
       {
-        field: "calllLogId",
-        headerName: "Call Log ID",
+        field: "callId",
+        headerName: "Call ID",
         flex: 1,
         minWidth: 120,
       },
@@ -235,19 +263,40 @@ const CallLog = ({ data, isLoading = false, refetch }) => {
         valueGetter: ({ row }) => row.user?.mobileNumber || "N/A",
       },
       {
-        field: "recording",
-        headerName: "Call Recording",
+        field: "duration",
+        headerName: "Duration",
         flex: 1,
         minWidth: 120,
-        valueGetter: ({ row }) => row.user?.recording || "N/A",
+        valueFormatter: ({ value }) => (value ? formatDuration(value) : "N/A"),
       },
       {
-        field: "callLogDate",
-        headerName: "Call Log Date",
+        field: "recordingURL",
+        headerName: "Call Recording",
         flex: 1,
-        minWidth: 120,
+        minWidth: 250,
+        renderCell: ({ value }) =>
+          value ? <AudioPlayer url={value} /> : "N/A",
+      },
+      {
+        field: "timestamp",
+        headerName: "Call Timestamp",
+        flex: 1,
+        minWidth: 200,
         valueFormatter: ({ value }) =>
-          convertFromTimestampToDate(value.seconds, value.nanoseconds),
+          value ? value.replace(" UTC+05:30", "") : "N/A",
+      },
+      {
+        field: "actions",
+        headerName: "",
+        flex: 1,
+        minWidth: 150,
+        renderCell: ({ row }) => (
+          <Box display={"flex"} gap={1.25}>
+            <IconButton onClick={() => handleUpdateCrop(row)}>
+              <EditIcon />
+            </IconButton>
+          </Box>
+        ),
       },
     ];
   }, []);
@@ -277,6 +326,7 @@ const CallLog = ({ data, isLoading = false, refetch }) => {
           initialState={{
             columns: {
               columnVisibilityModel: {
+                farmerName: false,
                 language: false,
                 actualReadyToHarvestDate: false,
                 firstLastHarvestDate: false,
@@ -288,6 +338,7 @@ const CallLog = ({ data, isLoading = false, refetch }) => {
                 generalHarvestCycleInDays: false,
                 chutePercentage: false,
                 paymentTerms: false,
+                name: false,
                 /* village: false, */
                 variety: false,
                 numberOfNuts: false,
@@ -303,6 +354,20 @@ const CallLog = ({ data, isLoading = false, refetch }) => {
           }}
         />
       </Box>
+
+      {/* Update Crop Modal */}
+      <Modal
+        open={modal.update}
+        header={"Update Farm Form"}
+        modalStyles={{ padding: "1rem" }}
+        handleClose={() => closeModal("update")}
+      >
+        <UpdateCropForm
+          fields={crop}
+          refetch={refetch}
+          handleModalClose={() => closeModal("update")}
+        />
+      </Modal>
     </>
   );
 };

@@ -75,10 +75,6 @@ const Farms = () => {
 
         date.setHours(0, 0, 0, 0);
 
-        const today = date.toLocaleDateString("en-CA", {
-          timeZone: "Asia/Kolkata",
-        });
-
         q = query(
           reference,
           where(

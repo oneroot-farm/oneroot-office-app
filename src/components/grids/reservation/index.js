@@ -10,6 +10,7 @@ import {
   GridToolbarDensitySelector,
   GridToolbarColumnsButton,
   GridToolbarQuickFilter,
+  getGridDateOperators,
 } from "@mui/x-data-grid";
 
 import { Box, Chip, IconButton, CircularProgress } from "@mui/material";
@@ -17,12 +18,13 @@ import { Box, Chip, IconButton, CircularProgress } from "@mui/material";
 // Components
 import Modal from "@/components/modal";
 import NoRows from "@/components/noRows";
+import MUICustomDateFilter from "@/components/muiCustomDateFilter";
 
 // Forms
 import UpdateReservationForm from "@/components/forms/reservation/update";
 
 // Utils
-import { convertFromTimestampToDate } from "@/utils";
+import { compareDate, convertFromTimestampToDate } from "@/utils";
 
 // Icons
 import EditIcon from "@mui/icons-material/Edit";
@@ -92,6 +94,26 @@ const Reservation = ({ data, isLoading = false, refetch }) => {
 
     openModal("update");
   };
+
+  const DateOperators = getGridDateOperators().map((operator) => ({
+    ...operator,
+    InputComponent: MUICustomDateFilter,
+    getApplyFilterFn: (item) => {
+      return (params) => {
+        if (!item.field || !item.value) {
+          return true;
+        }
+
+        const d1 = convertFromTimestampToDate(
+          params.value.seconds,
+          params.value.nanoseconds
+        );
+        const d2 = item.value;
+
+        return compareDate(d1, d2);
+      };
+    },
+  }));
 
   const columns = useMemo(() => {
     return [
@@ -293,6 +315,7 @@ const Reservation = ({ data, isLoading = false, refetch }) => {
         headerName: "Reservation Date",
         flex: 1,
         minWidth: 120,
+        /* filterOperators: DateOperators, */
         valueFormatter: ({ value }) =>
           convertFromTimestampToDate(value.seconds, value.nanoseconds),
       },

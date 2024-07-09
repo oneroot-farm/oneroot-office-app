@@ -59,7 +59,7 @@ const MobileSideBar = (props) => {
     const route = currentRoute === "" ? "Dashboard" : currentRoute;
 
     if (route) {
-      setActive(capitalizeString(route));
+      setActive(capitalizeString(route.replace(/_/g, " ")));
     }
   }, [pathName]);
 
@@ -76,7 +76,8 @@ const MobileSideBar = (props) => {
   const listItemClickHandler = (e, text) => {
     e.preventDefault();
 
-    const path = text === "Dashboard" ? "/" : text.toLowerCase();
+    const path =
+      text === "Dashboard" ? "/" : text.toLowerCase().replace(/ /g, "_");
 
     // Closing sidebar on small screens 📱
     handleDrawerToggle();

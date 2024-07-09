@@ -17,6 +17,7 @@ import {
   where,
   getDoc,
   getDocs,
+  Timestamp,
   collection,
 } from "firebase/firestore";
 
@@ -26,10 +27,10 @@ import SelectInput from "@/components/inputs/selectInput";
 import CallLogsGrid from "@/components/grids/callLog";
 
 // Utils
-import { getTimeframeDates } from "@/utils";
+import { getTimeframeDates, convertToISTString } from "@/utils";
 
 // Constants
-import { TIMEFRAMES } from "@/constants";
+import { TIMEFRAMES as BASE_TIMEFRAMES } from "@/constants";
 
 const schema = z.object({
   timeframe: z.string().nonempty("Timeframe is required"),
@@ -50,6 +51,11 @@ const CallLogs = () => {
     resolver: zodResolver(schema),
   });
 
+  const TIMEFRAMES = [
+    { id: 4, label: "Last Week", value: "lastWeek" },
+    ...BASE_TIMEFRAMES.filter((t) => t.value === "today"),
+  ];
+
   const [callLogs, setCallLogs] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -68,15 +74,21 @@ const CallLogs = () => {
 
       const { startDate, endDate } = getTimeframeDates(timeframe);
 
-      const reference = collection(db, "call_logs");
+      const reference = collection(db, "call_attempts");
 
       let q = reference;
 
       if (startDate && endDate) {
+        const startOfDay = convertToISTString(startDate.toDate());
+
+        const endOfDay = convertToISTString(
+          new Date(endDate.toDate().setHours(23, 59, 59, 999))
+        );
+
         q = query(
           reference,
-          where("createdAt", ">=", startDate),
-          where("createdAt", "<=", endDate)
+          where("startStamp", ">=", startOfDay),
+          where("startStamp", "<=", endOfDay)
         );
       }
 
@@ -130,6 +142,7 @@ const CallLogs = () => {
     }
   };
 
+  /*
   useEffect(() => {
     if (loadReference.current) {
       loadReference.current = false;
@@ -147,6 +160,7 @@ const CallLogs = () => {
       fetchCallLogs(timeframe);
     }
   }, [timeframe]);
+  */
 
   return (
     <Box

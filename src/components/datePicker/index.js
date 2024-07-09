@@ -2,8 +2,8 @@
 
 import { makeStyles } from "tss-react/mui";
 
-import { LocalizationProvider } from "@mui/x-date-pickers/index";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/index";
 import { MobileDatePicker, DesktopDatePicker } from "@mui/x-date-pickers/index";
 
 const DatePicker = ({ pickerProps }) => {
