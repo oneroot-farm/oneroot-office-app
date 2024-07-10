@@ -20,12 +20,10 @@ export const TOP_MENU = [
     name: "Farms",
     icon: <AgricultureIcon />,
   },
-  /*
   {
     name: "Notes",
     icon: <ChecklistRtlIcon />,
   },
-  */
   {
     name: "Call Logs",
     icon: <CallIcon />,
