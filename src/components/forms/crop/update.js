@@ -105,7 +105,7 @@ const schema = z.object({
   ageOfTree: z
     .number()
     .nonnegative("Please enter a valid age of tree")
-    .refine((value) => value !== 0, "Age of tree can not be zero")
+    /* .refine((value) => value !== 0, "Age of tree can not be zero") */
     .refine((value) => !isNaN(value), "Age of tree must be a valid number"),
 
   chutePercentage: z
@@ -361,7 +361,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
     try {
       setLoading(true);
 
-      const { notes, mobileNumber, ...rest } = data;
+      const { notes, mobileNumber, coords: coordinates, ...rest } = data;
 
       const timestamp = dayjs().format("YYYY-MM-DD HH:mm:ss");
 
@@ -423,14 +423,14 @@ const Update = ({ fields, refetch, handleModalClose }) => {
       if (crop.exists()) {
         const data = crop.data();
 
-        const existingNotes = data.notes || [];
+        const current = data.notes || [];
 
-        const newNotes = notes
+        const updated = notes
           ? notes.split(",").map((note) => `${timestamp} - ${note.trim()}`)
           : [];
 
         await updateDoc(reference, {
-          notes: [...existingNotes, ...newNotes],
+          notes: [...current, ...updated],
         });
       } else {
         console.error("crop record not found");
