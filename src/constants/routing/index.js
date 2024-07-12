@@ -2,6 +2,7 @@
 
 // Icons
 import CallIcon from "@mui/icons-material/Call";
+import GroupIcon from "@mui/icons-material/Group";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import AgricultureIcon from "@mui/icons-material/Agriculture";
 import ChecklistRtlIcon from "@mui/icons-material/ChecklistRtl";
@@ -23,6 +24,10 @@ export const TOP_MENU = [
   {
     name: "Notes",
     icon: <ChecklistRtlIcon />,
+  },
+  {
+    name: "Users",
+    icon: <GroupIcon />,
   },
   {
     name: "Call Logs",

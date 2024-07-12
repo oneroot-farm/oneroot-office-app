@@ -392,10 +392,10 @@ const Reservation = ({ data, isLoading = false, refetch }) => {
         />
       </Box>
 
-      {/* Update Crop Modal */}
+      {/* Update Reservation Modal */}
       <Modal
         open={modal.update}
-        header={"Update Farm Form"}
+        header={"Update Reservation Form"}
         modalStyles={{ padding: "1rem" }}
         handleClose={() => closeModal("update")}
       >

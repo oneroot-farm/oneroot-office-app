@@ -14,7 +14,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 
-const DocPicker = ({ sx, files, handleFileUpload }) => {
+const DocPicker = ({ sx, key, files, multiple = true, handleFileUpload }) => {
   const { classes } = useStyles();
 
   const [dragOver, setDragOver] = useState(false);
@@ -54,6 +54,7 @@ const DocPicker = ({ sx, files, handleFileUpload }) => {
 
   return (
     <Paper
+      key={key}
       variant="outlined"
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
@@ -69,7 +70,7 @@ const DocPicker = ({ sx, files, handleFileUpload }) => {
         accept="image/*"
         style={{ display: "none" }}
         id="raised-button-file"
-        multiple
+        multiple={multiple}
         type="file"
         onChange={handleChange}
       />

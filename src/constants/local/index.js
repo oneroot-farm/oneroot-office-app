@@ -47,6 +47,19 @@ export const PAYMENT_TERMS = [
   },
 ];
 
+export const YES_NO = [
+  {
+    id: 1,
+    label: "Yes",
+    value: true,
+  },
+  {
+    id: 2,
+    label: "No",
+    value: false,
+  },
+];
+
 export const RESERVATION_STATUSES = [
   { id: 1, label: "Pending", value: "pending" },
   { id: 2, label: "Confirmed", value: "confirmed" },
