@@ -43,12 +43,11 @@ const schema = z.object({
 
   isVerified: z.boolean(),
 
-  aadharCardNumber: z
-    .string()
-    .min(1, "Aadhar card number is required")
-    .min(12, "Aadhar card number must be exactly 12 digits")
-    .max(12, "Aadhar card number must be exactly 12 digits")
-    .regex(/^[0-9]{12}$/, "Aadhar card number must be exactly 12 digits"),
+  aadharCardNumber: z.string(),
+  /* .min(1, "Aadhar card number is required") */
+  /* .min(12, "Aadhar card number must be exactly 12 digits") */
+  /* .max(12, "Aadhar card number must be exactly 12 digits") */
+  /* .regex(/^[0-9]{12}$/, "Aadhar card number must be exactly 12 digits"), */
 
   labourForceCount: z
     .number()
@@ -68,11 +67,11 @@ const schema = z.object({
       "Daily nuts yield must be a valid number"
     ),
 
-  targetRegions: z.string().min(1, "Target regions are required"),
+  targetRegions: z.string(),
 
   preferredVarieties: z.array(z.string()),
 
-  supplyNetwork: z.string().min(1, "Supply network is required"),
+  supplyNetwork: z.string(),
 
   selfQC: z.boolean(),
 
@@ -81,17 +80,19 @@ const schema = z.object({
   amountWillingToPay: z
     .number()
     .nonnegative("Please enter a valid amount willing to pay")
-    .refine((value) => value !== 0, "Amount willing to pay can not be zero")
+    /* .refine((value) => value !== 0, "Amount willing to pay can not be zero") */
     .refine(
       (value) => !isNaN(value),
       "Amount willing to pay must be a valid number"
     ),
 
+  /*
   contactsCount: z
     .number()
     .nonnegative("Please enter a valid contacts count")
-    /* .refine((value) => value !== 0, "Contacts count can not be zero") */
+    .refine((value) => value !== 0, "Contacts count can not be zero")
     .refine((value) => !isNaN(value), "Contacts count must be a valid number"),
+  */
 });
 
 const defaultValues = {
@@ -107,13 +108,14 @@ const defaultValues = {
   selfQC: false,
   dailyFeedback: false,
   amountWillingToPay: 0,
-  contactsCount: 0,
+  /* contactsCount: 0, */
 };
 
 const Update = ({ fields, refetch, handleModalClose }) => {
   const {
     reset,
     control,
+    setError,
     handleSubmit,
     formState: { errors },
   } = useForm({
@@ -153,6 +155,23 @@ const Update = ({ fields, refetch, handleModalClose }) => {
   const onSubmit = async (data) => {
     try {
       setLoading(true);
+
+      if (data.aadharCardNumber) {
+        let valid = true;
+
+        const aadharRegex = /^[0-9]{12}$/;
+
+        if (!aadharRegex.test(data.aadharCardNumber)) {
+          setError("aadharCardNumber", {
+            type: "manual",
+            message: "Aadhar card number must be exactly 12 digits",
+          });
+
+          valid = false;
+        }
+
+        if (!valid) return;
+      }
 
       const payload = {
         ...data,
@@ -277,7 +296,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                 {...rest}
                 fullWidth
                 type="number"
-                label="Aadhar Card Number*"
+                label="Aadhar Card Number"
                 variant="outlined"
                 error={!!errors.aadharCardNumber}
                 helperText={errors.aadharCardNumber?.message}
@@ -292,7 +311,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
             )}
           />
 
-          <Controller
+          {/* <Controller
             name="contactsCount"
             control={control}
             render={({ field: { onChange, ...rest } }) => (
@@ -307,7 +326,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                 onChange={(e) => onChange(parseFloat(e.target.value))}
               />
             )}
-          />
+          /> */}
         </Box>
 
         <Box className={cx(classes.inputWrapper)}>
@@ -359,7 +378,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
               <TextInput
                 {...field}
                 fullWidth
-                label="Target Regions*"
+                label="Target Regions"
                 variant="outlined"
                 error={!!errors.targetRegions}
                 helperText={
@@ -459,7 +478,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                 {...rest}
                 fullWidth
                 type="number"
-                label="Amount Willing To Pay*"
+                label="Amount Willing To Pay"
                 variant="outlined"
                 inputProps={{
                   step: 0.1,

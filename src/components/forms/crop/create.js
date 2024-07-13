@@ -412,7 +412,7 @@ const Create = ({ fields, refetch, handleModalClose }) => {
 
       const farmName = `FARM-${id.substring(0, 5)}`;
 
-      await updateDoc(doc(db, "crops", id), { farmName });
+      await updateDoc(doc(db, "crops", id), { id, farmName });
 
       toast.success("Record created successfully!");
 
