@@ -116,6 +116,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
     reset,
     control,
     setError,
+    getValues,
     handleSubmit,
     formState: { errors },
   } = useForm({
@@ -130,12 +131,34 @@ const Update = ({ fields, refetch, handleModalClose }) => {
 
   useEffect(() => {
     if (fields) {
-      const { name = "", mobileNumber = "", isVerified = false } = fields;
+      const {
+        name = "",
+        mobileNumber = "",
+        isVerified = false,
+        aadharCardNumber = "",
+        labourForceCount = 0,
+        dailyNutsYield = 0,
+        targetRegions = "",
+        preferredVarieties = [],
+        supplyNetwork = "",
+        selfQC = false,
+        dailyFeedback = false,
+        amountWillingToPay = 0,
+      } = fields;
 
       const formData = {
         name,
         mobileNumber,
         isVerified,
+        aadharCardNumber,
+        labourForceCount,
+        dailyNutsYield,
+        targetRegions,
+        preferredVarieties,
+        supplyNetwork,
+        selfQC,
+        dailyFeedback,
+        amountWillingToPay,
       };
 
       reset(formData);
@@ -260,6 +283,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                 fullWidth
                 label="Is Verified*"
                 variant="outlined"
+                disabled={getValues().isVerified}
                 error={!!errors.isVerified}
                 message={errors.isVerified?.message}
               >

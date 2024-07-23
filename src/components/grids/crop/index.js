@@ -253,6 +253,7 @@ const Crop = ({ data, isLoading = false, refetch }) => {
                   <Chip
                     key={index}
                     label={tag}
+                    size="small"
                     variant="outlined"
                     color="warning"
                   />

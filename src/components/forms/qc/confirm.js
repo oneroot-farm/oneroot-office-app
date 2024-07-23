@@ -36,7 +36,7 @@ const Confirm = ({ fields, refetch, handleModalClose }) => {
         cropId: fields.id,
         status: "pending",
         userId: null,
-        tags: ["need-location"],
+        tags: ["need-location", "office"],
         createdAt: serverTimestamp(),
       };
 

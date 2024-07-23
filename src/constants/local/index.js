@@ -60,6 +60,19 @@ export const YES_NO = [
   },
 ];
 
+export const USER_VERIFICATION_STATUSES = [
+  {
+    id: 1,
+    label: "Verified",
+    value: true,
+  },
+  {
+    id: 2,
+    label: "Not Verified",
+    value: false,
+  },
+];
+
 export const RESERVATION_STATUSES = [
   { id: 1, label: "Pending", value: "pending" },
   { id: 2, label: "Confirmed", value: "confirmed" },
