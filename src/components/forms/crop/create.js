@@ -39,6 +39,7 @@ import {
 // Constants
 import {
   CROPS,
+  TALUKS,
   LANGUAGES,
   PAYMENT_TERMS,
   COCONUT_VARIETIES,
@@ -80,6 +81,11 @@ const schema = z.object({
       (value) => !isNaN(value),
       "General harvest cycle in days must be a valid number"
     ),
+
+  taluk: z
+    .string()
+    .nullable()
+    .refine((val) => val !== "", "Taluk is required"),
 
   village: z.string().min(1, "Village is required"),
 
@@ -163,6 +169,7 @@ const defaultValues = {
   generalHarvestCycleInDays: 0,
   village: "",
   isOrganic: false,
+  taluk: "",
   variety: "",
   numberOfTrees: 0,
   heightOfTree: 0,
@@ -215,6 +222,7 @@ const Create = ({ fields, refetch, handleModalClose }) => {
         generalHarvestCycleInDays = 0,
         village = "",
         isOrganic = false,
+        taluk = "",
         variety = "",
         numberOfTrees = 0,
         heightOfTree = 0,
@@ -227,8 +235,6 @@ const Create = ({ fields, refetch, handleModalClose }) => {
         turmericVariety = "",
         polishedType = "",
         ipmOrOrganic = "",
-        /* mapLink = "", */
-        /* notes = [], */
         location = { latitude: null, longitude: null },
         readyToHarvestDate = dayjs(),
         firstLastHarvestDate = dayjs(),
@@ -242,6 +248,7 @@ const Create = ({ fields, refetch, handleModalClose }) => {
         isTenderCoconutFarm,
         isDryCoconutFarm,
         generalHarvestCycleInDays,
+        taluk,
         village,
         isOrganic,
         variety,
@@ -256,8 +263,6 @@ const Create = ({ fields, refetch, handleModalClose }) => {
         turmericVariety,
         polishedType,
         ipmOrOrganic,
-        /* mapLink, */
-        /* notes: Array.isArray(notes) ? notes.join(", ") : "", */
       };
 
       reset(formData);
@@ -394,6 +399,10 @@ const Create = ({ fields, refetch, handleModalClose }) => {
         notes: notes
           ? notes.split(",").map((note) => `${timestamp} - ${note.trim()}`)
           : [],
+
+        weather: null,
+        lastWeatherUpdated: null,
+        isReadyToHarvest: false,
       };
 
       if (files && files.length > 0) {
@@ -555,19 +564,21 @@ const Create = ({ fields, refetch, handleModalClose }) => {
 
         <Box className={cx(classes.inputWrapper)}>
           <Controller
-            name="generalHarvestCycleInDays"
+            name="taluk"
             control={control}
-            render={({ field: { onChange, ...rest } }) => (
-              <TextInput
-                {...rest}
+            render={({ field }) => (
+              <SelectInput
+                {...field}
                 fullWidth
-                type="number"
-                label="General Harvest Cycle In Days*"
+                label="Taluk*"
                 variant="outlined"
-                error={!!errors.generalHarvestCycleInDays}
-                helperText={errors.generalHarvestCycleInDays?.message}
-                onChange={(e) => onChange(parseInt(e.target.value))}
-              />
+                error={!!errors.taluk}
+                message={errors.taluk?.message}
+              >
+                {TALUKS.map((l) => (
+                  <MenuItem value={l.value}>{l.label}</MenuItem>
+                ))}
+              </SelectInput>
             )}
           />
 
@@ -588,6 +599,23 @@ const Create = ({ fields, refetch, handleModalClose }) => {
         </Box>
 
         <Box className={cx(classes.inputWrapper)}>
+          <Controller
+            name="generalHarvestCycleInDays"
+            control={control}
+            render={({ field: { onChange, ...rest } }) => (
+              <TextInput
+                {...rest}
+                fullWidth
+                type="number"
+                label="General Harvest Cycle In Days*"
+                variant="outlined"
+                error={!!errors.generalHarvestCycleInDays}
+                helperText={errors.generalHarvestCycleInDays?.message}
+                onChange={(e) => onChange(parseInt(e.target.value))}
+              />
+            )}
+          />
+
           <Controller
             name="isOrganic"
             control={control}
