@@ -166,4 +166,5 @@ export const TALUKS = [
   { id: 25, label: "Hunsur", value: "Hunsur" },
   { id: 26, label: "Piriyapatna", value: "Piriyapatna" },
   { id: 27, label: "Krishna Raja Nagara", value: "Krishna Raja Nagara" },
+  { id: 28, label: "Hanur", value: "Hanur" },
 ];
