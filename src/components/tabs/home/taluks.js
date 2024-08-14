@@ -12,7 +12,7 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 
 // Components
 import Loader from "@/components/loader";
-import CropGrid from "@/components/grids/crop";
+import TalukGrid from "@/components/grids/taluk";
 
 const Districts = () => {
   const [crops, setCrops] = useState([]);
@@ -72,7 +72,7 @@ const Districts = () => {
       justifyContent="center"
     >
       {/* Grid */}
-      <CropGrid data={crops} refetch={refetch} />
+      <TalukGrid data={crops} refetch={refetch} />
 
       {/* Loader */}
       <Loader open={isLoading} />
