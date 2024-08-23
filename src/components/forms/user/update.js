@@ -49,6 +49,8 @@ const schema = z.object({
   /* .max(12, "Aadhar card number must be exactly 12 digits") */
   /* .regex(/^[0-9]{12}$/, "Aadhar card number must be exactly 12 digits"), */
 
+  village: z.string().min(1, "Village is required"),
+
   labourForceCount: z
     .number()
     .nonnegative("Please enter a valid labour force count")
@@ -100,6 +102,7 @@ const defaultValues = {
   mobileNumber: "",
   isVerified: false,
   aadharCardNumber: "",
+  village: "",
   labourForceCount: 0,
   dailyNutsYield: 0,
   targetRegions: "",
@@ -136,6 +139,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
         mobileNumber = "",
         isVerified = false,
         aadharCardNumber = "",
+        village = "",
         labourForceCount = 0,
         dailyNutsYield = 0,
         targetRegions = "",
@@ -151,11 +155,14 @@ const Update = ({ fields, refetch, handleModalClose }) => {
         mobileNumber,
         isVerified,
         aadharCardNumber,
+        village,
         labourForceCount,
         dailyNutsYield,
-        targetRegions,
-        preferredVarieties,
-        supplyNetwork,
+        targetRegions:
+          Array.isArray(targetRegions) > 0 ? targetRegions.join(", ") : "",
+        preferredVarieties: preferredVarieties,
+        supplyNetwork:
+          Array.isArray(supplyNetwork) > 0 ? supplyNetwork.join(", ") : "",
         selfQC,
         dailyFeedback,
         amountWillingToPay,
@@ -283,7 +290,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                 fullWidth
                 label="Is Verified*"
                 variant="outlined"
-                disabled={getValues().isVerified}
+                disabled={fields?.isVerified}
                 error={!!errors.isVerified}
                 message={errors.isVerified?.message}
               >
@@ -351,6 +358,21 @@ const Update = ({ fields, refetch, handleModalClose }) => {
               />
             )}
           /> */}
+
+          <Controller
+            name="village"
+            control={control}
+            render={({ field }) => (
+              <TextInput
+                {...field}
+                fullWidth
+                label="Village*"
+                variant="outlined"
+                error={!!errors.village}
+                helperText={errors.village?.message}
+              />
+            )}
+          />
         </Box>
 
         <Box className={cx(classes.inputWrapper)}>

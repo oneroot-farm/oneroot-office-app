@@ -89,6 +89,13 @@ const Crop = ({ data, isLoading = false, refetch }) => {
         valueFormatter: ({ value }) => value || "N/A",
       },
       {
+        field: "identity",
+        headerName: "Identity",
+        flex: 1,
+        minWidth: 120,
+        valueFormatter: ({ value }) => value || "N/A",
+      },
+      {
         field: "createdAt",
         headerName: "Registration Date",
         flex: 1,
