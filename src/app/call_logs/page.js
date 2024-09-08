@@ -119,9 +119,32 @@ const CallLogs = () => {
             const userDocument = await getDoc(doc(db, "users", callLog.userId));
 
             if (userDocument.exists()) {
-              callLog.user = { ...userDocument.data() };
+              const user = userDocument.data();
+
+              let farmer = user?.identity === "FARMER" ? user : null;
+              let buyer = user?.identity === "BUYER" ? user : null;
+
+              const reference = collection(db, "users");
+
+              // fetch the user with callTo number
+              const to = query(
+                reference,
+                where("mobileNumber", "==", callLog.callTo)
+              );
+
+              const toSnapshot = await getDocs(to);
+
+              if (!farmer) farmer = toSnapshot.docs[0]?.data();
+
+              if (!buyer) buyer = toSnapshot.docs[0]?.data();
+
+              callLog.farmer = farmer;
+
+              callLog.buyer = buyer;
             } else {
-              callLog.user = null;
+              callLog.farmer = null;
+
+              callLog.buyer = null;
             }
           }
 

@@ -94,21 +94,24 @@ const CallLog = ({ data, isLoading = false, refetch }) => {
         headerName: "Farmer Name",
         flex: 1,
         minWidth: 120,
-        valueGetter: ({ row }) => row.crop?.farmerName || "N/A",
+        valueGetter: ({ row }) =>
+          row.farmer ? row.farmer.name : row.crop.farmerName || "N/A",
       },
       {
         field: "language",
         headerName: "Farmer Language",
         flex: 1,
         minWidth: 120,
-        valueGetter: ({ row }) => row.crop?.language || "N/A",
+        valueGetter: ({ row }) =>
+          row.farmer ? row.farmer.language : row.crop?.language || "N/A",
       },
       {
-        field: "crop4",
+        field: "farmerMobileNumber",
         headerName: "Farmer Mobile Number",
         flex: 1,
         minWidth: 120,
-        valueGetter: ({ row }) => row.crop?.mobileNumber || "N/A",
+        valueGetter: ({ row }) =>
+          row.farmer ? row.farmer.mobileNumber : row.crop.mobileNumber || "N/A",
       },
       {
         field: "variety",
@@ -253,14 +256,14 @@ const CallLog = ({ data, isLoading = false, refetch }) => {
         headerName: "Buyer Name",
         flex: 1,
         minWidth: 120,
-        valueGetter: ({ row }) => row.user?.name || "N/A",
+        valueGetter: ({ row }) => row.buyer?.name || "N/A",
       },
       {
         field: "buyerMobileNumber",
         headerName: "Buyer Mobile Number",
         flex: 1,
         minWidth: 120,
-        valueGetter: ({ row }) => row.user?.mobileNumber || "N/A",
+        valueGetter: ({ row }) => row.buyer?.mobileNumber || "N/A",
       },
       {
         field: "duration",
@@ -268,6 +271,21 @@ const CallLog = ({ data, isLoading = false, refetch }) => {
         flex: 1,
         minWidth: 120,
         valueFormatter: ({ value }) => (value ? formatDuration(value) : "N/A"),
+      },
+      {
+        field: "identity",
+        headerName: "Initiated By",
+        flex: 1,
+        minWidth: 120,
+        valueGetter: ({ row }) => {
+          if (row.farmer && row.farmer.identity) {
+            return row.farmer.identity;
+          } else if (row.buyer && row.buyer.identity) {
+            return row.buyer.identity;
+          } else {
+            return "N/A";
+          }
+        },
       },
       {
         field: "recordingURL",
