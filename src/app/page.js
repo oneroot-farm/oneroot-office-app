@@ -14,6 +14,7 @@ import TabPanel from "@/components/tabPanel";
 // Tabs
 import CropsTab from "@/components/tabs/home/crops.js";
 import TaluksTab from "@/components/tabs/home/taluks.js";
+import ManageTreesTab from "@/components/tabs/home/manageTrees.js";
 
 const Home = () => {
   const { classes } = useStyles();
@@ -31,6 +32,7 @@ const Home = () => {
         >
           <Tab label="Farms" id={`tab-${0}`} className={classes.tab} />
           <Tab label="Manage Taluks" id={`tab-${1}`} className={classes.tab} />
+          <Tab label="Manage Trees" id={`tab-${2}`} className={classes.tab} />
         </Tabs>
       </Box>
 
@@ -41,6 +43,10 @@ const Home = () => {
       <TabPanel value={currentTab} index={1} className={classes.panel}>
         <TaluksTab />
       </TabPanel>
+
+      <TabPanel value={currentTab} index={2} className={classes.panel}>
+        <ManageTreesTab />
+      </TabPanel>
     </Box>
   );
 };
@@ -48,9 +54,9 @@ const Home = () => {
 // 🎨 Styles
 const useStyles = makeStyles({
   name: { Home },
-})((theme) => ({
+})(() => ({
   tab: {
-    minWidth: "50%",
+    minWidth: "33.33%",
   },
   panel: {
     "& .MuiBox-root": {
