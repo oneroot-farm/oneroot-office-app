@@ -193,14 +193,12 @@ const Crop = ({ data, isLoading = false, refetch }) => {
         flex: 1,
         minWidth: 120,
       },
-      /*
       {
         field: "village",
         headerName: "Village",
         flex: 1,
         minWidth: 120,
       },
-      */
       {
         field: "cropsAvailable",
         headerName: "Crops Available",
