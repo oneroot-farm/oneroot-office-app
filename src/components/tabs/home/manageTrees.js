@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState, useEffect } from "react";
 
 import { z } from "zod";
 import { toast } from "react-toastify";
@@ -26,7 +26,7 @@ const schema = z.object({
 });
 
 const defaultValues = {
-  numberOfTrees: 0,
+  numberOfTrees: 20,
 };
 
 const ManageTrees = () => {
@@ -43,6 +43,8 @@ const ManageTrees = () => {
   const [crops, setCrops] = useState([]);
 
   const [isLoading, setIsLoading] = useState(false);
+
+  const loadReference = useRef(true);
 
   const onSubmit = async (data) => {
     try {
@@ -123,6 +125,14 @@ const ManageTrees = () => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (loadReference.current) {
+      loadReference.current = false;
+
+      refetch();
+    }
+  }, []);
 
   return (
     <Box
