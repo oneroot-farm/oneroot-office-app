@@ -200,6 +200,12 @@ const Crop = ({ data, isLoading = false, refetch }) => {
         minWidth: 120,
       },
       {
+        field: "taluk",
+        headerName: "Taluk",
+        flex: 1,
+        minWidth: 120,
+      },
+      {
         field: "cropsAvailable",
         headerName: "Crops Available",
         flex: 1,
@@ -322,7 +328,7 @@ const Crop = ({ data, isLoading = false, refetch }) => {
                 secondLastHarvestDate: false,
                 thirdLastHarvestDate: false,
                 cropsAvailable: false,
-                /* village: false, */
+                village: false,
                 ageOfTree: false,
                 heightOfTree: false,
                 isTenderCoconutFarm: false,
