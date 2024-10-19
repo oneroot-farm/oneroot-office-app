@@ -19,7 +19,8 @@ import Modal from "@/components/modal";
 import NoRows from "@/components/noRows";
 
 // Forms
-import UpdateCropForm from "@/components/forms/crop/update";
+// import UpdateCropForm from "@/components/forms/crop/update";
+import UpdateFarmForm from "@/components/forms/farm/update";
 import ConfirmQCRequest from "@/components/forms/qc/confirm";
 
 // Utils
@@ -351,7 +352,13 @@ const Crop = ({ data, isLoading = false, refetch }) => {
         modalStyles={{ padding: "1rem" }}
         handleClose={() => closeModal("update")}
       >
-        <UpdateCropForm
+        {/* <UpdateCropForm
+          fields={crop}
+          refetch={refetch}
+          handleModalClose={() => closeModal("update")}
+        /> */}
+
+        <UpdateFarmForm
           fields={crop}
           refetch={refetch}
           handleModalClose={() => closeModal("update")}

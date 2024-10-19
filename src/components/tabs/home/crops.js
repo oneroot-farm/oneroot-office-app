@@ -21,6 +21,7 @@ import TextInput from "@/components/inputs/textInput";
 
 // Forms
 import CreateCropForm from "@/components/forms/crop/create";
+import CreateFarmForm from "@/components/forms/farm/create";
 
 // Icons
 import SearchIcon from "@mui/icons-material/Search";
@@ -182,7 +183,15 @@ const Crops = () => {
         modalStyles={{ padding: "1rem" }}
         handleClose={() => closeModal("create")}
       >
-        <CreateCropForm
+        {/* <CreateCropForm
+          refetch={refetch}
+          fields={{
+            mobileNumber: getValues().mobileNumber,
+          }}
+          handleModalClose={() => closeModal("create")}
+        /> */}
+
+        <CreateFarmForm
           refetch={refetch}
           fields={{
             mobileNumber: getValues().mobileNumber,
