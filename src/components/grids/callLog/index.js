@@ -111,7 +111,9 @@ const CallLog = ({ data, isLoading = false, refetch }) => {
         flex: 1,
         minWidth: 120,
         valueGetter: ({ row }) =>
-          row.farmer ? row.farmer.mobileNumber : row.crop.mobileNumber || "N/A",
+          row.farmer
+            ? row.farmer?.mobileNumber
+            : row.crop?.mobileNumber || "N/A",
       },
       {
         field: "variety",
