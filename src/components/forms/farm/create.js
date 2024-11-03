@@ -38,37 +38,104 @@ import {
 
 // Define Zod schema
 const farmSchema = z.object({
+  // Farmer Details
   farmerName: z.string().min(1, "Farmer name is required"),
-  mobileNumber: z.string().min(10).max(10, "Mobile number must be 10 digits"),
+  mobileNumber: z
+    .string()
+    .min(10, "Mobile number must be exactly 10 digits")
+    .max(10, "Mobile number must be exactly 10 digits"),
   village: z.string().min(1, "Village is required"),
   taluk: z.string().min(1, "Taluk is required"),
   district: z.string().min(1, "District is required"),
-  language: z.string().nullable().refine((val) => val !== "", "Language is required"),
-  paymentTerms: z.string().nullable().refine((val) => val !== "", "Payment terms are required"),
+  language: z
+    .string()
+    .nullable()
+    .refine((val) => val !== "", "Language is required"),
+  paymentTerms: z
+    .string()
+    .nullable()
+    .refine((val) => val !== "", "Payment terms are required"),
+
+  // Farm Details
   farmId: z.string().min(1, "Farm ID is required"),
-  tenderCoconutAgeOfTree: z.number().nonnegative(),
-  tenderCoconutGeneralHarvestCycleInDays: z.number().nonnegative(),
-  tenderCoconutNumberOfTrees: z.number().nonnegative(),
-  tenderCoconutNumberOfNuts: z.number().nonnegative(),
+  farmIdentifier: z.string().min(1, "Farm Identifier is required"),
+  weather: z.string().optional(),
+  lastWeatherUpdated: z.string().optional(),
+  coords: z.string().optional(),
+
+
+  // Crop Details
+  // Tender Coconut
+  tenderCoconutAgeOfTree: z.number().nonnegative("Age must be non-negative"),
+  tenderCoconutGeneralHarvestCycleInDays: z
+    .number()
+    .nonnegative("Cycle must be non-negative"),
+  tenderCoconutNumberOfTrees: z.number().nonnegative("Number of trees must be non-negative"),
+  tenderCoconutNumberOfNuts: z.number().nonnegative("Number of nuts must be non-negative"),
   tenderCoconutIsOrganic: z.boolean(),
-  tenderCoconutHeightOfTree: z.number().nonnegative(),
-  tenderCoconutChutePercentage: z.number().nonnegative(),
-  tenderCoconutVariety: z.string().optional(),
+  tenderCoconutHeightOfTree: z.number().nonnegative("Height must be non-negative"),
+  tenderCoconutChutePercentage: z.number().nonnegative("Chute percentage must be non-negative"),
+  tenderCoconutVariety: z.string().nullable(),
   tenderCoconutReadyToHarvestDate: z.string().optional(),
-  tenderCoconutNutsFromLastHarvest: z.number().nonnegative(),
+  tenderCoconutNutsFromLastHarvest: z.number().nonnegative("Nuts from last harvest must be non-negative"),
+  tenderCoconutLocation: z.object({
+    latitude: z.number().nullable(),
+    longitude: z.number().nullable(),
+  }),
+  tenderCoconutImages: z.array(z.string()).optional(),
+  tenderCoconutIsReadyToHarvest: z.boolean(),
+
+  // Turmeric
   turmericRegion: z.string().optional(),
-  turmericVariety: z.string().optional(),
+  turmericVariety: z.string().nullable(),
   turmericIsOrganic: z.boolean().optional(),
-  turmericGeneralHarvestCycleInDays: z.number().nonnegative(),
+  turmericGeneralHarvestCycleInDays: z.number().nonnegative("Cycle must be non-negative"),
   turmericIsPolished: z.boolean().optional(),
+  turmericIsUnpolished: z.boolean().optional(),
+  turmericIsSinglePolished: z.boolean().optional(),
+  turmericIsDoublePolished: z.boolean().optional(),
   turmericReadyToHarvestDate: z.string().optional(),
-  turmericTotalQuantity: z.number().nonnegative(),
+  turmericTotalQuantity: z.number().nonnegative("Total quantity must be non-negative"),
+  turmericFingerQuantity: z.number().nonnegative("Finger quantity must be non-negative"),
+  turmericBulbQuantity: z.number().nonnegative("Bulb quantity must be non-negative"),
+  turmericIsIPM: z.boolean().optional(),
+  turmericIsReadyToHarvest: z.boolean().optional(),
+
+  // Dry Coconut
+  dryCoconutIsHarvested: z.boolean().optional(),
+  dryCoconutIsOnTree: z.boolean().optional(),
+  dryCoconutNumberOfNutsAvailable: z.number().nonnegative("Number of nuts must be non-negative"),
+  dryCoconutIsWithSemiHusk: z.boolean().optional(),
+  dryCoconutGeneralHarvestCycleInDays: z.number().nonnegative("Cycle must be non-negative"),
+  dryCoconutReadyToHarvestDate: z.string().optional(),
+  dryCoconutIsWithHusk: z.boolean().optional(),
+  dryCoconutIsReadyToHarvest: z.boolean().optional(),
+
+  // Banana
+  bananaVariety: z.string().optional(),
+  bananaTarShape: z.string().optional(),
+  bananaTarWeight: z.number().nonnegative("Weight must be non-negative"),
+  bananaNumberOfTrees: z.number().nonnegative("Number of trees must be non-negative"),
+  bananaNumberOfTreesRTH: z.number().nonnegative("Number of RTH trees must be non-negative"),
+  bananaGeneralHarvestCycleInDays: z.number().nonnegative("Cycle must be non-negative"),
+  bananaReadyToHarvestDate: z.string().optional(),
+  bananaCutCount: z.number().nonnegative("Cut count must be non-negative"),
+  bananaCutType: z.string().optional(),
+  bananaLocation: z.object({
+    latitude: z.number().nullable(),
+    longitude: z.number().nullable(),
+  }),
+  bananaIsReadyToHarvest: z.boolean(),
+  bananaNumberOfAcres: z.number().nonnegative().optional(),
+
+  // Additional Details
   coords: z.string().optional(),
   mapLink: z.string().optional(),
   notes: z.string().optional(),
 });
 
 const defaultValues = {
+  // Farmer Details
   farmerName: "",
   mobileNumber: "",
   village: "",
@@ -76,7 +143,16 @@ const defaultValues = {
   district: "",
   language: "",
   paymentTerms: "",
+
+  // Farm Details
   farmId: "",
+  farmIdentifier: "",
+  weather: "",
+  lastWeatherUpdated: "",
+  coords: "",
+
+  // Crop Details
+  // Tender Coconut
   tenderCoconutAgeOfTree: 0,
   tenderCoconutGeneralHarvestCycleInDays: 0,
   tenderCoconutNumberOfTrees: 0,
@@ -87,13 +163,58 @@ const defaultValues = {
   tenderCoconutVariety: "",
   tenderCoconutReadyToHarvestDate: dayjs().format("YYYY-MM-DD"),
   tenderCoconutNutsFromLastHarvest: 0,
+  tenderCoconutLocation: {
+    latitude: null,
+    longitude: null,
+  },
+  tenderCoconutImages: [],
+  tenderCoconutIsReadyToHarvest: false,
+
+  // Turmeric
   turmericRegion: "",
   turmericVariety: "",
   turmericIsOrganic: false,
   turmericGeneralHarvestCycleInDays: 0,
   turmericIsPolished: false,
+  turmericIsUnpolished: false,
+  turmericIsSinglePolished: false,
+  turmericIsDoublePolished: false,
   turmericReadyToHarvestDate: dayjs().format("YYYY-MM-DD"),
   turmericTotalQuantity: 0,
+  turmericFingerQuantity: 0,
+  turmericBulbQuantity: 0,
+  turmericIsIPM: false,
+  turmericIsReadyToHarvest: false,
+
+  // Dry Coconut
+  dryCoconutIsHarvested: false,
+  dryCoconutIsOnTree: false,
+  dryCoconutNumberOfNutsAvailable: 0,
+  dryCoconutIsWithSemiHusk: false,
+  dryCoconutGeneralHarvestCycleInDays: 0,
+  dryCoconutReadyToHarvestDate: dayjs().format("YYYY-MM-DD"),
+  dryCoconutIsWithHusk: false,
+  dryCoconutIsReadyToHarvest: false,
+
+  // Banana
+  bananaVariety: "",
+  bananaTarShape: "",
+  bananaTarWeight: 0,
+  bananaNumberOfTrees: 0,
+  bananaNumberOfTreesRTH: 0,
+  bananaGeneralHarvestCycleInDays: 0,
+  bananaReadyToHarvestDate: dayjs().format("YYYY-MM-DD"),
+  bananaCutCount: 0,
+  bananaCutType: "",
+  bananaLocation: {
+    latitude: null,
+    longitude: null,
+  },
+  bananaIsReadyToHarvest: false,
+  bananaNumberOfAcres: "",
+
+
+  // Additional Details
   coords: "",
   mapLink: "",
   notes: "",
@@ -110,6 +231,12 @@ const CreateFarmForm = ({ handleModalClose, refetch }) => {
   const [loading, setLoading] = useState(false);
   const { cx, classes } = useStyles();
 
+  if (location && location.latitude && location.longitude) {
+    const coords = `${location.latitude}, ${location.longitude}`;
+
+    setValue("coords", coords);
+  }
+
   const [dates, setDates] = useState({
     // Initialize dates as dayjs objects if needed
     tenderCoconutReadyToHarvestDate: dayjs(),
@@ -122,6 +249,7 @@ const CreateFarmForm = ({ handleModalClose, refetch }) => {
     try {
       setLoading(true);
       console.log("form data",data);
+      // alert("Form submitted successfully!");
       // const payload = {
       //   ...data,
       //   tenderCoconutReadyToHarvestDate: dayjs(data.tenderCoconutReadyToHarvestDate).format("YYYY-MM-DD"),
@@ -287,32 +415,19 @@ helperText={errors.district?.message}
 <FormHeader sx={{ mt: 4 }}>Farm Details</FormHeader>
 
 <Box className={cx(classes.inputWrapper)}>
-  <Controller
-    name="farmId"
+<Controller
+    name="coords"
     control={control}
     render={({ field }) => (
       <TextInput
         {...field}
         fullWidth
-        label="Farm ID*"
+        label="Coordinates"
         variant="outlined"
-        error={!!errors.farmId}
-        helperText={errors.farmId?.message}
-      />
-    )}
-  />
-
-  <Controller
-    name="farmIdentifier"
-    control={control}
-    render={({ field }) => (
-      <TextInput
-        {...field}
-        fullWidth
-        label="Farm Identifier*"
-        variant="outlined"
-        error={!!errors.farmIdentifier}
-        helperText={errors.farmIdentifier?.message}
+        error={!!errors.coords}
+        helperText={
+          errors.coords?.message || ""
+        }
       />
     )}
   />
@@ -354,6 +469,41 @@ helperText={errors.district?.message}
   />
 </Box>
 
+{/* <Box sx={{ display: 'flex', gap: 2, width: '100%' }}>
+<Controller
+name="farmLocation.latitude"
+control={control}
+render={({ field: { onChange, ...rest } }) => (
+<TextInput
+  {...rest}
+  fullWidth
+  type="number"
+  label="Latitude*"
+  variant="outlined"
+  error={!!errors.farmLocation?.latitude}
+  helperText={errors.farmLocation?.latitude?.message}
+  onChange={(e) => onChange(parseFloat(e.target.value))}
+/>
+)}
+/>
+
+<Controller
+name="farmLocation.longitude"
+control={control}
+render={({ field: { onChange, ...rest } }) => (
+<TextInput
+  {...rest}
+  fullWidth
+  type="number"
+  label="Longitude*"
+  variant="outlined"
+  error={!!errors.farmLocation?.longitude}
+  helperText={errors.farmLocation?.longitude?.message}
+  onChange={(e) => onChange(parseFloat(e.target.value))}
+/>
+)}
+/>
+</Box> */}
 {/* Crop Details */}
 <FormHeader sx={{ mt: 4 }}>Tender Coconut Details</FormHeader>
 
@@ -570,41 +720,7 @@ helperText={errors.district?.message}
   />
 
 </Box>
-<Box sx={{ display: 'flex', gap: 2, width: '100%' }}>
-<Controller
-name="tenderCoconutLocation.latitude"
-control={control}
-render={({ field: { onChange, ...rest } }) => (
-<TextInput
-  {...rest}
-  fullWidth
-  type="number"
-  label="Latitude*"
-  variant="outlined"
-  error={!!errors.tenderCoconutLocation?.latitude}
-  helperText={errors.tenderCoconutLocation?.latitude?.message}
-  onChange={(e) => onChange(parseFloat(e.target.value))}
-/>
-)}
-/>
 
-<Controller
-name="tenderCoconutLocation.longitude"
-control={control}
-render={({ field: { onChange, ...rest } }) => (
-<TextInput
-  {...rest}
-  fullWidth
-  type="number"
-  label="Longitude*"
-  variant="outlined"
-  error={!!errors.tenderCoconutaLocation?.longitude}
-  helperText={errors.tenderCoconutLocation?.longitude?.message}
-  onChange={(e) => onChange(parseFloat(e.target.value))}
-/>
-)}
-/>
-</Box>
 
 
 {/* Turmeric Details */}
@@ -1027,26 +1143,26 @@ message={errors.dryCoconutIsReadyToHarvest?.message}
 <FormHeader sx={{ mt: 4 }}>Banana Details</FormHeader>
 
 <Box className={cx(classes.inputWrapper)}>
-{/* <Controller
-name="bananaVariety"
-control={control}
-render={({ field }) => (
-<SelectInput
-{...field}
-fullWidth
-label="Banana Variety*"
-variant="outlined"
-error={!!errors.bananaVariety}
-message={errors.bananaVariety?.message}
->
-{BANANA_VARIETIES.map((variety) => (
-  <MenuItem key={variety.value} value={variety.value}>
-    {variety.label}
-  </MenuItem>
-))}
-</SelectInput>
-)}
-/> */}
+<Controller
+    name="bananaNumberOfAcres"
+    control={control}
+    render={({ field: { onChange, ...rest } }) => (
+      <TextInput
+        {...rest}
+        fullWidth
+        type="number"
+        label="Number of Acres*"
+        variant="outlined"
+        inputProps={{
+          step: 0.1,
+        }}
+        error={!!errors.bananaNumberOfAcres}
+        helperText={errors.bananaNumberOfAcres?.message}
+        onChange={(e) => onChange(parseFloat(e.target.value))}
+      />
+    )}
+  />
+
 
 <Controller
 name="bananaTarShape"
@@ -1185,45 +1301,6 @@ helperText={errors.bananaCutType?.message}
 />
 )}
 />
-
-<Box sx={{ display: 'flex', gap: 2, width: '100%' }}>
-<Controller
-name="bananaLocation.latitude"
-control={control}
-render={({ field: { onChange, ...rest } }) => (
-<TextInput
-  {...rest}
-  fullWidth
-  type="number"
-  label="Latitude*"
-  variant="outlined"
-  error={!!errors.bananaLocation?.latitude}
-  helperText={errors.bananaLocation?.latitude?.message}
-  onChange={(e) => onChange(parseFloat(e.target.value))}
-/>
-)}
-/>
-
-<Controller
-name="bananaLocation.longitude"
-control={control}
-render={({ field: { onChange, ...rest } }) => (
-<TextInput
-  {...rest}
-  fullWidth
-  type="number"
-  label="Longitude*"
-  variant="outlined"
-  error={!!errors.bananaLocation?.longitude}
-  helperText={errors.bananaLocation?.longitude?.message}
-  onChange={(e) => onChange(parseFloat(e.target.value))}
-/>
-)}
-/>
-</Box>
-</Box>
-
-<Box className={cx(classes.inputWrapper)}>
 <Controller
 name="bananaIsReadyToHarvest"
 control={control}
@@ -1241,8 +1318,9 @@ message={errors.bananaIsReadyToHarvest?.message}
 </SelectInput>
 )}
 />
-</Box>
 
+
+  </Box>
         <FormFooter>
           <Button size="large" variant="contained" type="submit" disabled={loading}>Submit</Button>
         </FormFooter>

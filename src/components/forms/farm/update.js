@@ -28,14 +28,6 @@ import FormFooter from "@/components/forms/components/formFooter";
 import TextInput from "@/components/inputs/textInput";
 import SelectInput from "@/components/inputs/selectInput";
 
-// Utils
-import {
-  areCoordinates,
-  getCurrentLocation,
-  uploadFilesHandler,
-  safeAssign,
-} from "@/utils";
-
 // Constants
 import {
   LANGUAGES,
@@ -43,110 +35,72 @@ import {
   COCONUT_VARIETIES,
   TURMERIC_VARIETIES,
   TALUKS,
-//   BANANA_VARIETIES,
+  BANANA_VARIETIES,
   TURMERIC_POLISHED_TYPES,
   IPM_ORGANIC_TYPES,
-  // Add other constants as needed
+  BANANA_CUT_TYPES,
+  BANANA_TAR_SHAPES,
+  CROPS,
 } from "@/constants";
 
-// Define the Zod schema based on the provided farm object
-const farmSchema = z.object({
-  // Farmer Details
+const schema = z.object({
   farmerName: z.string().min(1, "Farmer name is required"),
-  mobileNumber: z
-    .string()
-    .min(10, "Mobile number must be exactly 10 digits")
-    .max(10, "Mobile number must be exactly 10 digits"),
+  mobileNumber: z.string().min(10, "Mobile number must be exactly 10 digits").max(10, "Mobile number must be exactly 10 digits"),
   village: z.string().min(1, "Village is required"),
   taluk: z.string().min(1, "Taluk is required"),
   district: z.string().min(1, "District is required"),
-  language: z
-    .string()
-    .nullable()
-    .refine((val) => val !== "", "Language is required"),
-  paymentTerms: z
-    .string()
-    .nullable()
-    .refine((val) => val !== "", "Payment terms are required"),
-
-  // Farm Details
-  farmId: z.string().min(1, "Farm ID is required"),
-  farmIdentifier: z.string().min(1, "Farm Identifier is required"),
-  weather: z.string().optional(),
-  lastWeatherUpdated: z.string().optional(),
-
-  // Crop Details
-  // Tender Coconut
-  tenderCoconutAgeOfTree: z.number().nonnegative("Age must be non-negative"),
-  tenderCoconutGeneralHarvestCycleInDays: z
-    .number()
-    .nonnegative("Cycle must be non-negative"),
-  tenderCoconutNumberOfTrees: z.number().nonnegative("Number of trees must be non-negative"),
-  tenderCoconutNumberOfNuts: z.number().nonnegative("Number of nuts must be non-negative"),
-  tenderCoconutIsOrganic: z.boolean(),
-  tenderCoconutHeightOfTree: z.number().nonnegative("Height must be non-negative"),
-  tenderCoconutChutePercentage: z.number().nonnegative("Chute percentage must be non-negative"),
-  tenderCoconutVariety: z.string().nullable(),
-  tenderCoconutReadyToHarvestDate: z.string().optional(),
-  tenderCoconutNutsFromLastHarvest: z.number().nonnegative("Nuts from last harvest must be non-negative"),
-  tenderCoconutLocation: z.object({
-    latitude: z.number().nullable(),
-    longitude: z.number().nullable(),
-  }),
-  tenderCoconutImages: z.array(z.string()).optional(),
-  tenderCoconutIsReadyToHarvest: z.boolean(),
-
-  // Turmeric
+  language: z.string().min(1, "Language is required"),
+  paymentTerms: z.string().min(1, "Payment terms are required"),
+  cropsAvailable: z.array(z.string()),
+  coords: z.string().optional(),
+  tenderCoconutAgeOfTree: z.number().nonnegative().optional(),
+  tenderCoconutGeneralHarvestCycleInDays: z.number().nonnegative().optional(),
+  tenderCoconutNumberOfTrees: z.number().nonnegative().optional(),
+  tenderCoconutNumberOfNuts: z.number().nonnegative().optional(),
+  tenderCoconutIsOrganic: z.boolean().optional(),
+  tenderCoconutHeightOfTree: z.number().nonnegative().optional(),
+  tenderCoconutChutePercentage: z.number().nonnegative().optional(),
+  tenderCoconutVariety: z.string().optional(),
+  tenderCoconutReadyToHarvestDate: z.date().nullable().optional(),
+  tenderCoconutNutsFromLastHarvest: z.number().nonnegative().optional(),
+  tenderCoconutIsReadyToHarvest: z.boolean().optional(),
   turmericRegion: z.string().optional(),
-  turmericVariety: z.string().nullable(),
+  turmericVariety: z.string().optional(),
   turmericIsOrganic: z.boolean().optional(),
-  turmericGeneralHarvestCycleInDays: z.number().nonnegative("Cycle must be non-negative"),
+  turmericGeneralHarvestCycleInDays: z.number().nonnegative().optional(),
   turmericIsPolished: z.boolean().optional(),
   turmericIsUnpolished: z.boolean().optional(),
   turmericIsSinglePolished: z.boolean().optional(),
   turmericIsDoublePolished: z.boolean().optional(),
-  turmericReadyToHarvestDate: z.string().optional(),
-  turmericTotalQuantity: z.number().nonnegative("Total quantity must be non-negative"),
-  turmericFingerQuantity: z.number().nonnegative("Finger quantity must be non-negative"),
-  turmericBulbQuantity: z.number().nonnegative("Bulb quantity must be non-negative"),
+  turmericReadyToHarvestDate: z.date().nullable().optional(),
+  turmericTotalQuantity: z.number().nonnegative().optional(),
+  turmericFingerQuantity: z.number().nonnegative().optional(),
+  turmericBulbQuantity: z.number().nonnegative().optional(),
   turmericIsIPM: z.boolean().optional(),
   turmericIsReadyToHarvest: z.boolean().optional(),
-
-  // Dry Coconut
   dryCoconutIsHarvested: z.boolean().optional(),
   dryCoconutIsOnTree: z.boolean().optional(),
-  dryCoconutNumberOfNutsAvailable: z.number().nonnegative("Number of nuts must be non-negative"),
+  dryCoconutNumberOfNutsAvailable: z.number().nonnegative().optional(),
   dryCoconutIsWithSemiHusk: z.boolean().optional(),
-  dryCoconutGeneralHarvestCycleInDays: z.number().nonnegative("Cycle must be non-negative"),
-  dryCoconutReadyToHarvestDate: z.string().optional(),
+  dryCoconutGeneralHarvestCycleInDays: z.number().nonnegative().optional(),
+  dryCoconutReadyToHarvestDate: z.date().nullable().optional(),
   dryCoconutIsWithHusk: z.boolean().optional(),
   dryCoconutIsReadyToHarvest: z.boolean().optional(),
-
-  // Banana
   bananaVariety: z.string().optional(),
   bananaTarShape: z.string().optional(),
-  bananaTarWeight: z.number().nonnegative("Weight must be non-negative"),
-  bananaNumberOfTrees: z.number().nonnegative("Number of trees must be non-negative"),
-  bananaNumberOfTreesRTH: z.number().nonnegative("Number of RTH trees must be non-negative"),
-  bananaGeneralHarvestCycleInDays: z.number().nonnegative("Cycle must be non-negative"),
-  bananaReadyToHarvestDate: z.string().optional(),
-  bananaCutCount: z.number().nonnegative("Cut count must be non-negative"),
+  bananaTarWeight: z.number().nonnegative().optional(),
+  bananaNumberOfTrees: z.number().nonnegative().optional(),
+  bananaNumberOfTreesRTH: z.number().nonnegative().optional(),
+  bananaGeneralHarvestCycleInDays: z.number().nonnegative().optional(),
+  bananaReadyToHarvestDate: z.date().nullable().optional(),
+  bananaCutCount: z.number().nonnegative().optional(),
   bananaCutType: z.string().optional(),
-  bananaLocation: z.object({
-    latitude: z.number().nullable(),
-    longitude: z.number().nullable(),
-  }),
-  bananaIsReadyToHarvest: z.boolean(),
-
-  // Additional Details
-  coords: z.string().optional(),
-  mapLink: z.string().optional(),
+  bananaIsReadyToHarvest: z.boolean().optional(),
+  bananaNumberOfAcres: z.number().nonnegative().optional(),
   notes: z.string().optional(),
 });
 
-// Define default values based on the schema
 const defaultValues = {
-  // Farmer Details
   farmerName: "",
   mobileNumber: "",
   village: "",
@@ -154,81 +108,56 @@ const defaultValues = {
   district: "",
   language: "",
   paymentTerms: "",
-
-  // Farm Details
-  farmId: "",
-  farmIdentifier: "",
-  weather: "",
-  lastWeatherUpdated: "",
-
-  // Crop Details
-  // Tender Coconut
-  tenderCoconutAgeOfTree: 0,
-  tenderCoconutGeneralHarvestCycleInDays: 0,
-  tenderCoconutNumberOfTrees: 0,
-  tenderCoconutNumberOfNuts: 0,
+  cropsAvailable: [],
+  coords: "",
+  tenderCoconutAgeOfTree: "",
+  tenderCoconutGeneralHarvestCycleInDays: "",
+  tenderCoconutNumberOfTrees: "",
+  tenderCoconutNumberOfNuts: "",
   tenderCoconutIsOrganic: false,
-  tenderCoconutHeightOfTree: 0,
-  tenderCoconutChutePercentage: 0,
+  tenderCoconutHeightOfTree: "",
+  tenderCoconutChutePercentage: "",
   tenderCoconutVariety: "",
-  tenderCoconutReadyToHarvestDate: dayjs().format("YYYY-MM-DD"),
-  tenderCoconutNutsFromLastHarvest: 0,
-  tenderCoconutLocation: {
-    latitude: null,
-    longitude: null,
-  },
-  tenderCoconutImages: [],
+  tenderCoconutReadyToHarvestDate: null,
+  tenderCoconutNutsFromLastHarvest: "",
   tenderCoconutIsReadyToHarvest: false,
-
-  // Turmeric
   turmericRegion: "",
   turmericVariety: "",
   turmericIsOrganic: false,
-  turmericGeneralHarvestCycleInDays: 0,
+  turmericGeneralHarvestCycleInDays: "",
   turmericIsPolished: false,
   turmericIsUnpolished: false,
   turmericIsSinglePolished: false,
   turmericIsDoublePolished: false,
-  turmericReadyToHarvestDate: dayjs().format("YYYY-MM-DD"),
-  turmericTotalQuantity: 0,
-  turmericFingerQuantity: 0,
-  turmericBulbQuantity: 0,
+  turmericReadyToHarvestDate: null,
+  turmericTotalQuantity: "",
+  turmericFingerQuantity: "",
+  turmericBulbQuantity: "",
   turmericIsIPM: false,
   turmericIsReadyToHarvest: false,
-
-  // Dry Coconut
   dryCoconutIsHarvested: false,
   dryCoconutIsOnTree: false,
-  dryCoconutNumberOfNutsAvailable: 0,
+  dryCoconutNumberOfNutsAvailable: "",
   dryCoconutIsWithSemiHusk: false,
-  dryCoconutGeneralHarvestCycleInDays: 0,
-  dryCoconutReadyToHarvestDate: dayjs().format("YYYY-MM-DD"),
+  dryCoconutGeneralHarvestCycleInDays: "",
+  dryCoconutReadyToHarvestDate: null,
   dryCoconutIsWithHusk: false,
   dryCoconutIsReadyToHarvest: false,
-
-  // Banana
   bananaVariety: "",
   bananaTarShape: "",
-  bananaTarWeight: 0,
-  bananaNumberOfTrees: 0,
-  bananaNumberOfTreesRTH: 0,
-  bananaGeneralHarvestCycleInDays: 0,
-  bananaReadyToHarvestDate: dayjs().format("YYYY-MM-DD"),
-  bananaCutCount: 0,
+  bananaTarWeight: "",
+  bananaNumberOfTrees: "",
+  bananaNumberOfTreesRTH: "",
+  bananaGeneralHarvestCycleInDays: "",
+  bananaReadyToHarvestDate: null,
+  bananaCutCount: "",
   bananaCutType: "",
-  bananaLocation: {
-    latitude: null,
-    longitude: null,
-  },
   bananaIsReadyToHarvest: false,
-
-  // Additional Details
-  coords: "",
-  mapLink: "",
+  bananaNumberOfAcres: "",
   notes: "",
 };
 
-const FarmForm = ({ farmId, refetch, handleModalClose }) => {
+const Update = ({ fields, refetch, handleModalClose }) => {
   const {
     reset,
     watch,
@@ -239,318 +168,128 @@ const FarmForm = ({ farmId, refetch, handleModalClose }) => {
     formState: { errors },
   } = useForm({
     defaultValues,
-    resolver: zodResolver(farmSchema),
+    resolver: zodResolver(schema),
+    shouldUnregister: true, // Add this line
   });
+  
 
   const [files, setFiles] = useState([]);
-  const [dates, setDates] = useState({
-    // Initialize dates as dayjs objects if needed
-    tenderCoconutReadyToHarvestDate: dayjs(),
-    turmericReadyToHarvestDate: dayjs(),
-    dryCoconutReadyToHarvestDate: dayjs(),
-    bananaReadyToHarvestDate: dayjs(),
-  });
+  const [dates, setDates] = useState({});
   const [loading, setLoading] = useState(false);
 
   const { cx, classes } = useStyles();
 
   useEffect(() => {
-    if (farmId) {
-      // Fetch farm data from Firebase
-      const fetchFarmData = async () => {
-        try {
-          setLoading(true);
-          const reference = doc(db, "farms", farmId);
-          const farmDoc = await getDoc(reference);
-          if (farmDoc.exists()) {
-            const data = farmDoc.data();
-            // Map Firebase data to form fields
-            const formData = {
-              farmerName: data.farmerName || "",
-              mobileNumber: data.mobileNumber?.replace(/^\+91/, "") || "",
-              village: data.village || "",
-              taluk: data.taluk || "",
-              district: data.district || "",
-              language: data.language || "",
-              paymentTerms: data.paymentTerms || "",
-              farmId: data.farmId || "",
-              farmIdentifier: data.farmIdentifier || "",
-              weather: data.weather || "",
-              lastWeatherUpdated: data.lastWeatherUpdated || "",
-              // Tender Coconut
-              tenderCoconutAgeOfTree: data.tenderCoconutAgeOfTree || 0,
-              tenderCoconutGeneralHarvestCycleInDays:
-                data.tenderCoconutGeneralHarvestCycleInDays || 0,
-              tenderCoconutNumberOfTrees: data.tenderCoconutNumberOfTrees || 0,
-              tenderCoconutNumberOfNuts: data.tenderCoconutNumberOfNuts || 0,
-              tenderCoconutIsOrganic: data.tenderCoconutIsOrganic || false,
-              tenderCoconutHeightOfTree: data.tenderCoconutHeightOfTree || 0,
-              tenderCoconutChutePercentage: data.tenderCoconutChutePercentage || 0,
-              tenderCoconutVariety: data.tenderCoconutVariety || "",
-              tenderCoconutReadyToHarvestDate:
-                data.tenderCoconutReadyToHarvestDate || dayjs().format("YYYY-MM-DD"),
-              tenderCoconutNutsFromLastHarvest:
-                data.tenderCoconutNutsFromLastHarvest || 0,
-              tenderCoconutLocation: data.tenderCoconutLocation || {
-                latitude: null,
-                longitude: null,
-              },
-              tenderCoconutImages: data.tenderCoconutImages || [],
-              tenderCoconutIsReadyToHarvest:
-                data.tenderCoconutIsReadyToHarvest || false,
-              // Turmeric
-              turmericRegion: data.turmericRegion || "",
-              turmericVariety: data.turmericVariety || "",
-              turmericIsOrganic: data.turmericIsOrganic || false,
-              turmericGeneralHarvestCycleInDays:
-                data.turmericGeneralHarvestCycleInDays || 0,
-              turmericIsPolished: data.turmericIsPolished || false,
-              turmericIsUnpolished: data.turmericIsUnpolished || false,
-              turmericIsSinglePolished:
-                data.turmericIsSinglePolished || false,
-              turmericIsDoublePolished:
-                data.turmericIsDoublePolished || false,
-              turmericReadyToHarvestDate:
-                data.turmericReadyToHarvestDate || dayjs().format("YYYY-MM-DD"),
-              turmericTotalQuantity: data.turmericTotalQuantity || 0,
-              turmericFingerQuantity: data.turmericFingerQuantity || 0,
-              turmericBulbQuantity: data.turmericBulbQuantity || 0,
-              turmericIsIPM: data.turmericIsIPM || false,
-              turmericIsReadyToHarvest: data.turmericIsReadyToHarvest || false,
-              // Dry Coconut
-              dryCoconutIsHarvested: data.dryCoconutIsHarvested || false,
-              dryCoconutIsOnTree: data.dryCoconutIsOnTree || false,
-              dryCoconutNumberOfNutsAvailable:
-                data.dryCoconutNumberOfNutsAvailable || 0,
-              dryCoconutIsWithSemiHusk: data.dryCoconutIsWithSemiHusk || false,
-              dryCoconutGeneralHarvestCycleInDays:
-                data.dryCoconutGeneralHarvestCycleInDays || 0,
-              dryCoconutReadyToHarvestDate:
-                data.dryCoconutReadyToHarvestDate || dayjs().format("YYYY-MM-DD"),
-              dryCoconutIsWithHusk: data.dryCoconutIsWithHusk || false,
-              dryCoconutIsReadyToHarvest:
-                data.dryCoconutIsReadyToHarvest || false,
-              // Banana
-              bananaVariety: data.bananaVariety || "",
-              bananaTarShape: data.bananaTarShape || "",
-              bananaTarWeight: data.bananaTarWeight || 0,
-              bananaNumberOfTrees: data.bananaNumberOfTrees || 0,
-              bananaNumberOfTreesRTH: data.bananaNumberOfTreesRTH || 0,
-              bananaGeneralHarvestCycleInDays:
-                data.bananaGeneralHarvestCycleInDays || 0,
-              bananaReadyToHarvestDate:
-                data.bananaReadyToHarvestDate || dayjs().format("YYYY-MM-DD"),
-              bananaCutCount: data.bananaCutCount || 0,
-              bananaCutType: data.bananaCutType || "",
-              bananaLocation: data.bananaLocation || {
-                latitude: null,
-                longitude: null,
-              },
-              bananaIsReadyToHarvest: data.bananaIsReadyToHarvest || false,
-              // Additional Details
-              coords: data.coords || "",
-              mapLink: data.mapLink || "",
-              notes: data.notes || "",
-            };
-
-            reset(formData);
-
-            // Set dates in state
-            setDates({
-              tenderCoconutReadyToHarvestDate: dayjs(
-                formData.tenderCoconutReadyToHarvestDate
-              ),
-              turmericReadyToHarvestDate: dayjs(formData.turmericReadyToHarvestDate),
-              dryCoconutReadyToHarvestDate: dayjs(
-                formData.dryCoconutReadyToHarvestDate
-              ),
-              bananaReadyToHarvestDate: dayjs(formData.bananaReadyToHarvestDate),
-            });
-
-            // Handle coordinates if available
-            if (
-              data.tenderCoconutLocation &&
-              data.tenderCoconutLocation.latitude &&
-              data.tenderCoconutLocation.longitude
-            ) {
-              const coords = `${data.tenderCoconutLocation.latitude}, ${data.tenderCoconutLocation.longitude}`;
-              setValue("coords", coords);
-            }
-
-            // Handle images if needed
-            if (data.tenderCoconutImages && data.tenderCoconutImages.length > 0) {
-              setFiles(data.tenderCoconutImages);
-            }
-          } else {
-            console.error("Farm record not found");
-          }
-        } catch (error) {
-          console.error("Error fetching farm data:", error);
-          toast.error("Failed to load farm data.");
-        } finally {
-          setLoading(false);
-        }
+    if (fields) {
+      const formData = {
+        farmerName: fields.farmerName || "",
+        mobileNumber: fields.mobileNumber?.replace(/^\+91/, "") || "",
+        village: fields.village || "",
+        taluk: fields.taluk || "",
+        district: fields.district || "",
+        language: fields.language || "",
+        paymentTerms: fields.paymentTerms || "",
+        cropsAvailable: fields.cropsAvailable || [],
+        tenderCoconutAgeOfTree: fields.tenderCoconutAgeOfTree || "",
+        tenderCoconutGeneralHarvestCycleInDays: fields.tenderCoconutGeneralHarvestCycleInDays || "",
+        tenderCoconutNumberOfTrees: fields.tenderCoconutNumberOfTrees || "",
+        tenderCoconutNumberOfNuts: fields.tenderCoconutNumberOfNuts || "",
+        tenderCoconutIsOrganic: fields.tenderCoconutIsOrganic || false,
+        tenderCoconutHeightOfTree: fields.tenderCoconutHeightOfTree || "",
+        tenderCoconutChutePercentage: fields.tenderCoconutChutePercentage || "",
+        tenderCoconutVariety: fields.tenderCoconutVariety || "",
+        tenderCoconutReadyToHarvestDate: fields.tenderCoconutReadyToHarvestDate ? dayjs(fields.tenderCoconutReadyToHarvestDate) : null,
+        tenderCoconutNutsFromLastHarvest: fields.tenderCoconutNutsFromLastHarvest || "",
+        tenderCoconutIsReadyToHarvest: fields.tenderCoconutIsReadyToHarvest || false,
+        turmericRegion: fields.turmericRegion || "",
+        turmericVariety: fields.turmericVariety || "",
+        turmericIsOrganic: fields.turmericIsOrganic || false,
+        turmericGeneralHarvestCycleInDays: fields.turmericGeneralHarvestCycleInDays || "",
+        turmericIsPolished: fields.turmericIsPolished || false,
+        turmericIsUnpolished: fields.turmericIsUnpolished || false,
+        turmericIsSinglePolished: fields.turmericIsSinglePolished || false,
+        turmericIsDoublePolished: fields.turmericIsDoublePolished || false,
+        turmericReadyToHarvestDate: fields.turmericReadyToHarvestDate ? dayjs(fields.turmericReadyToHarvestDate) : null,
+        turmericTotalQuantity: fields.turmericTotalQuantity || "",
+        turmericFingerQuantity: fields.turmericFingerQuantity || "",
+        turmericBulbQuantity: fields.turmericBulbQuantity || "",
+        turmericIsIPM: fields.turmericIsIPM || false,
+        turmericIsReadyToHarvest: fields.turmericIsReadyToHarvest || false,
+        dryCoconutIsHarvested: fields.dryCoconutIsHarvested || false,
+        dryCoconutIsOnTree: fields.dryCoconutIsOnTree || false,
+        dryCoconutNumberOfNutsAvailable: fields.dryCoconutNumberOfNutsAvailable || "",
+        dryCoconutIsWithSemiHusk: fields.dryCoconutIsWithSemiHusk || false,
+        dryCoconutGeneralHarvestCycleInDays: fields.dryCoconutGeneralHarvestCycleInDays || "",
+        dryCoconutReadyToHarvestDate: fields.dryCoconutReadyToHarvestDate ? dayjs(fields.dryCoconutReadyToHarvestDate) : null,
+        dryCoconutIsWithHusk: fields.dryCoconutIsWithHusk || false,
+        dryCoconutIsReadyToHarvest: fields.dryCoconutIsReadyToHarvest || false,
+        bananaVariety: fields.bananaVariety || "",
+        bananaTarShape: fields.bananaTarShape || "",
+        bananaTarWeight: fields.bananaTarWeight || "",
+        bananaNumberOfTrees: fields.bananaNumberOfTrees || "",
+        bananaNumberOfTreesRTH: fields.bananaNumberOfTreesRTH || "",
+        bananaGeneralHarvestCycleInDays: fields.bananaGeneralHarvestCycleInDays || "",
+        bananaReadyToHarvestDate: fields.bananaReadyToHarvestDate ? dayjs(fields.bananaReadyToHarvestDate) : null,
+        bananaCutCount: fields.bananaCutCount || "",
+        bananaCutType: fields.bananaCutType || "",
+        bananaIsReadyToHarvest: fields.bananaIsReadyToHarvest || false,
+        bananaNumberOfAcres: fields.bananaNumberOfAcres || "",
+        notes: fields.notes || "",
       };
 
-      fetchFarmData();
-    }
-  }, [farmId, reset]);
+      reset(formData);
 
-  const handleFileUpload = (uploadedFiles) => {
-    setFiles(uploadedFiles);
-  };
+      if (fields.tenderCoconutReadyToHarvestDate) {
+        setDates((prev) => ({
+          ...prev,
+          tenderCoconutReadyToHarvestDate: dayjs(fields.tenderCoconutReadyToHarvestDate),
+        }));
+      }
+
+      if (fields.turmericReadyToHarvestDate) {
+        setDates((prev) => ({
+          ...prev,
+          turmericReadyToHarvestDate: dayjs(fields.turmericReadyToHarvestDate),
+        }));
+      }
+
+      if (fields.dryCoconutReadyToHarvestDate) {
+        setDates((prev) => ({
+          ...prev,
+          dryCoconutReadyToHarvestDate: dayjs(fields.dryCoconutReadyToHarvestDate),
+        }));
+      }
+
+      if (fields.bananaReadyToHarvestDate) {
+        setDates((prev) => ({
+          ...prev,
+          bananaReadyToHarvestDate: dayjs(fields.bananaReadyToHarvestDate),
+        }));
+      }
+    }
+  }, [reset, fields]);
 
   const onSubmit = async (data) => {
     try {
       setLoading(true);
+      // Handle form submission logic
 
-      // Additional Validation if needed
-      // Example: Validate coordinates format
-      if (data.coords) {
-        const point = /^\s*-?\d+\.\d+\s*,\s*-?\d+\.\d+\s*$/;
-        if (!point.test(data.coords) && !areCoordinates(data.coords)) {
-          setError("coords", {
-            type: "manual",
-            message: "Coordinates are not valid",
-          });
-          return;
-        }
-      }
-
-      if (data.mapLink) {
-        const url = /^(ftp|http|https):\/\/[^ "]+$/;
-        if (!url.test(data.mapLink)) {
-          setError("mapLink", {
-            type: "manual",
-            message: "Map Link is not a valid URL",
-          });
-          return;
-        }
-      }
-
-      // Prepare payload
-      const payload = {
-        // Farmer Details
-        farmerName: data.farmerName,
-        mobileNumber: `+91${data.mobileNumber}`,
-        village: data.village,
-        taluk: data.taluk,
-        district: data.district,
-        language: data.language,
-        paymentTerms: data.paymentTerms,
-
-        // Farm Details
-        farmId: data.farmId,
-        farmIdentifier: data.farmIdentifier,
-        weather: data.weather,
-        lastWeatherUpdated: dayjs().format("YYYY-MM-DD HH:mm:ss"),
-
-        // Crop Details
-        // Tender Coconut
-        tenderCoconutAgeOfTree: data.tenderCoconutAgeOfTree,
-        tenderCoconutGeneralHarvestCycleInDays: data.tenderCoconutGeneralHarvestCycleInDays,
-        tenderCoconutNumberOfTrees: data.tenderCoconutNumberOfTrees,
-        tenderCoconutNumberOfNuts: data.tenderCoconutNumberOfNuts,
-        tenderCoconutIsOrganic: data.tenderCoconutIsOrganic,
-        tenderCoconutHeightOfTree: data.tenderCoconutHeightOfTree,
-        tenderCoconutChutePercentage: data.tenderCoconutChutePercentage,
-        tenderCoconutVariety: data.tenderCoconutVariety,
-        tenderCoconutReadyToHarvestDate: dayjs(dates.tenderCoconutReadyToHarvestDate).format(
-          "YYYY-MM-DD"
-        ),
-        tenderCoconutNutsFromLastHarvest: data.tenderCoconutNutsFromLastHarvest,
-        tenderCoconutIsReadyToHarvest: data.tenderCoconutIsReadyToHarvest,
-
-        // Turmeric
-        turmericRegion: data.turmericRegion,
-        turmericVariety: data.turmericVariety,
-        turmericIsOrganic: data.turmericIsOrganic,
-        turmericGeneralHarvestCycleInDays: data.turmericGeneralHarvestCycleInDays,
-        turmericIsPolished: data.turmericIsPolished,
-        turmericIsUnpolished: data.turmericIsUnpolished,
-        turmericIsSinglePolished: data.turmericIsSinglePolished,
-        turmericIsDoublePolished: data.turmericIsDoublePolished,
-        turmericReadyToHarvestDate: dayjs(dates.turmericReadyToHarvestDate).format(
-          "YYYY-MM-DD"
-        ),
-        turmericTotalQuantity: data.turmericTotalQuantity,
-        turmericFingerQuantity: data.turmericFingerQuantity,
-        turmericBulbQuantity: data.turmericBulbQuantity,
-        turmericIsIPM: data.turmericIsIPM,
-        turmericIsReadyToHarvest: data.turmericIsReadyToHarvest,
-
-        // Dry Coconut
-        dryCoconutIsHarvested: data.dryCoconutIsHarvested,
-        dryCoconutIsOnTree: data.dryCoconutIsOnTree,
-        dryCoconutNumberOfNutsAvailable: data.dryCoconutNumberOfNutsAvailable,
-        dryCoconutIsWithSemiHusk: data.dryCoconutIsWithSemiHusk,
-        dryCoconutGeneralHarvestCycleInDays: data.dryCoconutGeneralHarvestCycleInDays,
-        dryCoconutReadyToHarvestDate: dayjs(dates.dryCoconutReadyToHarvestDate).format(
-          "YYYY-MM-DD"
-        ),
-        dryCoconutIsWithHusk: data.dryCoconutIsWithHusk,
-        dryCoconutIsReadyToHarvest: data.dryCoconutIsReadyToHarvest,
-
-        // Banana
-        bananaVariety: data.bananaVariety,
-        bananaTarShape: data.bananaTarShape,
-        bananaTarWeight: data.bananaTarWeight,
-        bananaNumberOfTrees: data.bananaNumberOfTrees,
-        bananaNumberOfTreesRTH: data.bananaNumberOfTreesRTH,
-        bananaGeneralHarvestCycleInDays: data.bananaGeneralHarvestCycleInDays,
-        bananaReadyToHarvestDate: dayjs(dates.bananaReadyToHarvestDate).format(
-          "YYYY-MM-DD"
-        ),
-        bananaCutCount: data.bananaCutCount,
-        bananaCutType: data.bananaCutType,
-        bananaIsReadyToHarvest: data.bananaIsReadyToHarvest,
-
-        // Location Handling
-        location: data.coords
-          ? areCoordinates(data.coords)
-            ? {
-                latitude: parseFloat(data.coords.split(",")[0].trim()),
-                longitude: parseFloat(data.coords.split(",")[1].trim()),
-              }
-            : await getCurrentLocation().then((pos) => ({
-                latitude: pos.coords.latitude,
-                longitude: pos.coords.longitude,
-              }))
-          : await getCurrentLocation().then((pos) => ({
-              latitude: pos.coords.latitude,
-              longitude: pos.coords.longitude,
-            })),
-
-        // Images
-        tenderCoconutImages: files,
-
-        // Additional Details
-        mapLink: data.mapLink,
-        notes: data.notes,
-      };
-
-      // Update Firebase document
-      const reference = doc(db, "farms", farmId);
-      await updateDoc(reference, payload);
-
-      toast.success("Farm record updated successfully!");
-      refetch();
-      handleModalClose();
+      console.log("Data:", data);
     } catch (error) {
-      console.error("Error updating farm record:", error);
-      toast.error(`Error updating record: ${error.message}`);
+      console.error("Error updating farm:", error);
+      toast.error("Failed to update farm.");
     } finally {
       setLoading(false);
     }
   };
-
-  // Watch specific fields for conditional rendering if needed
-  const selectedCrops = watch(["tenderCoconutIsReadyToHarvest", "turmericIsReadyToHarvest", "dryCoconutIsReadyToHarvest", "bananaIsReadyToHarvest"]);
+  const onError = (errors) => {
+    console.log("Validation Errors:", errors);
+  };
+  
 
   return (
     <Container disableGutters className={cx(classes.container)}>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        {/* Farmer Details */}
+      <form onSubmit={handleSubmit(onSubmit, onError)}>
         <FormHeader sx={{ mt: 4 }}>Farmer Details</FormHeader>
 
         <Box className={cx(classes.inputWrapper)}>
@@ -585,9 +324,8 @@ const FarmForm = ({ farmId, refetch, handleModalClose }) => {
           />
         </Box>
 
-
         <Box className={cx(classes.inputWrapper)}>
-        <Controller
+          <Controller
             name="taluk"
             control={control}
             render={({ field }) => (
@@ -607,22 +345,22 @@ const FarmForm = ({ farmId, refetch, handleModalClose }) => {
               </SelectInput>
             )}
           />
-  <Controller
-    name="district"
-    control={control}
-    render={({ field }) => (
-      <TextInput
-        {...field}
-        fullWidth
-        label="District*"
-        variant="outlined"
-        error={!!errors.district}
-        helperText={errors.district?.message}
-      />
-    )}
-  />
-</Box>
 
+          <Controller
+            name="district"
+            control={control}
+            render={({ field }) => (
+              <TextInput
+                {...field}
+                fullWidth
+                label="District*"
+                variant="outlined"
+                error={!!errors.district}
+                helperText={errors.district?.message}
+              />
+            )}
+          />
+        </Box>
 
         <Box className={cx(classes.inputWrapper)}>
           <Controller
@@ -668,101 +406,143 @@ const FarmForm = ({ farmId, refetch, handleModalClose }) => {
           />
         </Box>
 
-  
         <Box className={cx(classes.inputWrapper)}>
        
+       <Controller
+         name="village"
+         control={control}
+         render={({ field }) => (
+           <TextInput
+             {...field}
+             fullWidth
+             label="Village*"
+             variant="outlined"
+             error={!!errors.village}
+             helperText={errors.village?.message}
+           />
+         )}
+       />
+     </Box>
+
+
+        <Box className={cx(classes.inputWrapper)}>
+          
+        </Box>
+        
+
+        <FormHeader sx={{ mt: 4 }}>Farm Details</FormHeader>
+
+{/* <Box className={cx(classes.inputWrapper)}>
   <Controller
-    name="village"
+    name="farmName"
     control={control}
     render={({ field }) => (
       <TextInput
         {...field}
         fullWidth
-        label="Village*"
+        label="Farm ID*"
         variant="outlined"
-        error={!!errors.village}
-        helperText={errors.village?.message}
+        error={!!errors.farmName}
+        helperText={errors.farmName?.message}
       />
     )}
   />
+
+  <Controller
+    name="farmIdentifier"
+    control={control}
+    render={({ field }) => (
+      <TextInput
+        {...field}
+        fullWidth
+        label="Farm Identifier*"
+        variant="outlined"
+        error={!!errors.farmIdentifier}
+        helperText={errors.farmIdentifier?.message}
+      />
+    )}
+  />
+</Box> */}
+
+<Box className={cx(classes.inputWrapper)}>
+  <Controller
+    name="weather"
+    control={control}
+    render={({ field }) => (
+      <TextInput
+        {...field}
+        fullWidth
+        label="Weather"
+        variant="outlined"
+        error={!!errors.weather}
+        helperText={errors.weather?.message}
+      />
+    )}
+  />
+
+
+  <DatePicker
+    pickerProps={{
+      format: "DD-MM-YYYY",
+      label: "Last Weather Updated*",
+      sx: { width: "100%" },
+      value: dates.lastWeatherUpdated,
+      onChange: (date) =>
+        setDates((prev) => ({
+          ...prev,
+          lastWeatherUpdated: dayjs(date),
+        })),
+      renderInput: (params) => <TextInput {...params} />,
+    }}
+  />
+
+
 </Box>
 
-
-
-
-        {/* Farm Details */}
-        <FormHeader sx={{ mt: 4 }}>Farm Details</FormHeader>
-
-        <Box className={cx(classes.inputWrapper)}>
-          <Controller
-            name="farmId"
+<Box className={cx(classes.inputWrapper)}>
+{/* Add the coords field here */}
+<Controller
+name="coords"
+control={control}
+render={({ field }) => (
+<TextInput
+{...field}
+fullWidth
+label="Coordinates"
+variant="outlined"
+error={!!errors.coords}
+helperText={
+  errors.coords?.message || "Captures current location if not provided"
+}
+/>
+)}
+/>
+<Controller
+            name="cropsAvailable"
             control={control}
             render={({ field }) => (
-              <TextInput
+              <SelectInput
                 {...field}
+                multiple
                 fullWidth
-                label="Farm ID*"
+                label="Crops Available"
                 variant="outlined"
-                error={!!errors.farmId}
-                helperText={errors.farmId?.message}
-              />
+                error={!!errors.cropsAvailable}
+                message={errors.cropsAvailable?.message}
+              >
+                {CROPS.map((crop) => (
+                  <MenuItem key={crop.value} value={crop.value}>
+                    {crop.label}
+                  </MenuItem>
+                ))}
+              </SelectInput>
             )}
           />
+</Box>
 
-          <Controller
-            name="farmIdentifier"
-            control={control}
-            render={({ field }) => (
-              <TextInput
-                {...field}
-                fullWidth
-                label="Farm Identifier*"
-                variant="outlined"
-                error={!!errors.farmIdentifier}
-                helperText={errors.farmIdentifier?.message}
-              />
-            )}
-          />
-        </Box>
-
-        <Box className={cx(classes.inputWrapper)}>
-          <Controller
-            name="weather"
-            control={control}
-            render={({ field }) => (
-              <TextInput
-                {...field}
-                fullWidth
-                label="Weather"
-                variant="outlined"
-                error={!!errors.weather}
-                helperText={errors.weather?.message}
-              />
-            )}
-          />
-
-          <Controller
-            name="lastWeatherUpdated"
-            control={control}
-            render={({ field }) => (
-              <TextInput
-                {...field}
-                fullWidth
-                label="Last Weather Updated"
-                variant="outlined"
-                type="date"
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                error={!!errors.lastWeatherUpdated}
-                helperText={errors.lastWeatherUpdated?.message}
-              />
-            )}
-          />
-        </Box>
-
-        {/* Crop Details */}
-        <FormHeader sx={{ mt: 4 }}>Crop Details</FormHeader>
+        {watch("cropsAvailable").includes("Tender Coconut") && (
+          <>
+            <FormHeader sx={{ mt: 4 }}>Tender Coconut Details</FormHeader>
 
         {/* Tender Coconut Details */}
         <Box className={cx(classes.inputWrapper)}>
@@ -977,9 +757,12 @@ const FarmForm = ({ farmId, refetch, handleModalClose }) => {
           />
 
         </Box>
+          </>
+        )}
 
-       {/* Turmeric Details */}
-<FormHeader sx={{ mt: 4 }}>Turmeric Details</FormHeader>
+        {watch("cropsAvailable").includes("Turmeric") && (
+          <>
+            <FormHeader sx={{ mt: 4 }}>Turmeric Details</FormHeader>
 
 <Box className={cx(classes.inputWrapper)}>
   <Controller
@@ -1240,10 +1023,12 @@ const FarmForm = ({ farmId, refetch, handleModalClose }) => {
   />
 </Box>
 
+          </>
+        )}
 
-
-       {/* Dry Coconut Details */}
-<FormHeader sx={{ mt: 4 }}>Dry Coconut Details</FormHeader>
+        {watch("cropsAvailable").includes("Dry Coconut") && (
+          <>
+            <FormHeader sx={{ mt: 4 }}>Dry Coconut Details</FormHeader>
 
 <Box className={cx(classes.inputWrapper)}>
   <Controller
@@ -1391,33 +1176,33 @@ const FarmForm = ({ farmId, refetch, handleModalClose }) => {
     )}
   />
 </Box>
+          </>
+        )}
 
-
-
-   {/* Banana Details */}
-<FormHeader sx={{ mt: 4 }}>Banana Details</FormHeader>
+        {watch("cropsAvailable").includes("Banana") && (
+          <>
+            <FormHeader sx={{ mt: 4 }}>Banana Details</FormHeader>
 
 <Box className={cx(classes.inputWrapper)}>
-  {/* <Controller
-    name="bananaVariety"
+  <Controller
+    name="bananaNumberOfAcres"
     control={control}
-    render={({ field }) => (
-      <SelectInput
-        {...field}
+    render={({ field: { onChange, ...rest } }) => (
+      <TextInput
+        {...rest}
         fullWidth
-        label="Banana Variety*"
+        type="number"
+        label="Number of Acres*"
         variant="outlined"
-        error={!!errors.bananaVariety}
-        message={errors.bananaVariety?.message}
-      >
-        {BANANA_VARIETIES.map((variety) => (
-          <MenuItem key={variety.value} value={variety.value}>
-            {variety.label}
-          </MenuItem>
-        ))}
-      </SelectInput>
+        inputProps={{
+          step: 0.1,
+        }}
+        error={!!errors.bananaNumberOfAcres}
+        helperText={errors.bananaNumberOfAcres?.message}
+        onChange={(e) => onChange(parseFloat(e.target.value))}
+      />
     )}
-  /> */}
+  />
 
   <Controller
     name="bananaTarShape"
@@ -1557,7 +1342,25 @@ const FarmForm = ({ farmId, refetch, handleModalClose }) => {
     )}
   />
 
-  <Box sx={{ display: 'flex', gap: 2, width: '100%' }}>
+<Controller
+    name="bananaIsReadyToHarvest"
+    control={control}
+    render={({ field }) => (
+      <SelectInput
+        {...field}
+        fullWidth
+        label="Is Ready To Harvest*"
+        variant="outlined"
+        error={!!errors.bananaIsReadyToHarvest}
+        message={errors.bananaIsReadyToHarvest?.message}
+      >
+        <MenuItem value={true}>Yes</MenuItem>
+        <MenuItem value={false}>No</MenuItem>
+      </SelectInput>
+    )}
+  />
+
+  {/* <Box sx={{ display: 'flex', gap: 2, width: '100%' }}>
     <Controller
       name="bananaLocation.latitude"
       control={control}
@@ -1591,125 +1394,29 @@ const FarmForm = ({ farmId, refetch, handleModalClose }) => {
         />
       )}
     />
-  </Box>
+  </Box> */}
 </Box>
+          </>
+        )}
 
-<Box className={cx(classes.inputWrapper)}>
-  <Controller
-    name="bananaIsReadyToHarvest"
-    control={control}
-    render={({ field }) => (
-      <SelectInput
-        {...field}
-        fullWidth
-        label="Is Ready To Harvest*"
-        variant="outlined"
-        error={!!errors.bananaIsReadyToHarvest}
-        message={errors.bananaIsReadyToHarvest?.message}
-      >
-        <MenuItem value={true}>Yes</MenuItem>
-        <MenuItem value={false}>No</MenuItem>
-      </SelectInput>
-    )}
-  />
-</Box>
-
-
-
-        {/* Additional Details
-        <FormHeader sx={{ mt: 4 }}>Additional Details</FormHeader>
-
-        <Box className={cx(classes.inputWrapper)}>
-          <Controller
-            name="coords"
-            control={control}
-            render={({ field }) => (
-              <TextInput
-                {...field}
-                fullWidth
-                label="Coordinates"
-                variant="outlined"
-                error={!!errors.coords}
-                helperText={
-                  errors.coords?.message ||
-                  "Captures current location if not provided"
-                }
-              />
-            )}
-          />
-
-          <Controller
-            name="mapLink"
-            control={control}
-            render={({ field }) => (
-              <TextInput
-                {...field}
-                fullWidth
-                label="Map Link"
-                variant="outlined"
-                error={!!errors.mapLink}
-                helperText={errors.mapLink?.message}
-              />
-            )}
-          />
-        </Box>
-
-        <Box className={cx(classes.inputWrapper)}>
-          <Controller
-            name="notes"
-            control={control}
-            render={({ field }) => (
-              <TextInput
-                {...field}
-                fullWidth
-                label="Notes"
-                variant="outlined"
-                error={!!errors.notes}
-                helperText={
-                  errors.notes?.message ||
-                  "Separate multiple values with commas (,)"
-                }
-              />
-            )}
-          />
-        </Box> */}
-
-        {/* Submit Button */}
         <FormFooter>
-          <Button
-            size="large"
-            variant="contained"
-            sx={(theme) => ({ color: theme.palette.primary.white })}
-            type="submit"
-          >
+          <Button size="large" variant="contained" type="submit" disabled={loading}>
             Submit
           </Button>
         </FormFooter>
+        <Loader open={loading} />
       </form>
-
-      {/* File Upload
-      <DocPicker
-        sx={{ mb: 2.5 }}
-        files={files}
-        handleFileUpload={handleFileUpload}
-      /> */}
-
-      {/* Loader */}
-      <Loader open={loading} />
     </Container>
   );
 };
 
-// Styles 💅
 const useStyles = makeStyles({
-  name: { FarmForm },
+  name: { Update },
 })((theme) => ({
   container: {},
-
   inputWrapper: {
     gap: 12,
     display: "flex",
-
     [theme.breakpoints.down("sm")]: {
       gap: 0,
       flexWrap: "wrap",
@@ -1717,4 +1424,4 @@ const useStyles = makeStyles({
   },
 }));
 
-export default FarmForm;
+export default Update;
