@@ -131,7 +131,8 @@ export const CROPS = [
   { id: 8, label: "Tomato", value: "Tomato" },
   { id: 9, label: "Onion", value: "Onion" },
   { id: 10, label: "Nutmeg", value: "Nutmeg" },
-  { id: 11, label: "Others", value: "Others" },
+  { id: 11, label: "Dry Coconut", value: "Dry Coconut" },
+  { id: 12, label: "Others", value: "Others" },
 ];
 
 export const TALUKS = [
@@ -169,3 +170,32 @@ export const TALUKS = [
   { id: 28, label: "Hanur", value: "Hanur" },
   { id: 29, label: "Mandya", value: "Mandya" },
 ];
+
+export const MARKET_PRICES = {
+  tenderCoconut: {
+    varieties: [{ id: 1, label: "Naati", value: "Naati" }],
+    locations: [
+      { id: 1, label: "Maddur", value: "Maddur" },
+      { id: 2, label: "K R Pete", value: "K R Pete" },
+      { id: 3, label: "Azadpur", value: "Azadpur" },
+      { id: 4, label: "Chamarajnagar", value: "Chamarajnagar" },
+    ],
+  },
+  turmeric: {
+    varieties: [{ id: 1, label: "Erode", value: "Erode" }],
+    locations: [{ id: 1, label: "NCDEX", value: "NCDEX" }],
+  },
+  banana: {
+    varieties: [
+      { id: 1, label: "G9", value: "G9" },
+      { id: 2, label: "Nendra", value: "Nendra" },
+      { id: 3, label: "Red", value: "Red" },
+      { id: 4, label: "Yellakki", value: "Yellakki" },
+    ],
+    locations: [],
+  },
+  dryCoconut: {
+    varieties: [],
+    locations: [{ id: 1, label: "Chamarajnagar", value: "Chamarajnagar" }],
+  },
+};

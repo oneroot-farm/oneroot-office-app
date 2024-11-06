@@ -4,6 +4,7 @@
 import CallIcon from "@mui/icons-material/Call";
 import GroupIcon from "@mui/icons-material/Group";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
+import ShowChartIcon from "@mui/icons-material/ShowChart";
 import AgricultureIcon from "@mui/icons-material/Agriculture";
 import ChecklistRtlIcon from "@mui/icons-material/ChecklistRtl";
 import SpaceDashboardIcon from "@mui/icons-material/SpaceDashboard";
@@ -28,6 +29,10 @@ export const TOP_MENU = [
   {
     name: "Users",
     icon: <GroupIcon />,
+  },
+  {
+    name: "Market Prices",
+    icon: <ShowChartIcon />,
   },
   {
     name: "Call Logs",
