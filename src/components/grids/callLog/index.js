@@ -68,7 +68,6 @@ const CallLog = ({ data, isLoading = false, refetch }) => {
     setModal((prev) => ({ ...prev, [state]: false }));
 
   const handleUpdateCrop = (row) => {
-    console.log("Crop : ", row.crop);
     setCrop(row.crop);
 
     openModal("update");

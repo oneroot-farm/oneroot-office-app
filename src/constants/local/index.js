@@ -199,3 +199,23 @@ export const MARKET_PRICES = {
     locations: [{ id: 1, label: "Chamarajnagar", value: "Chamarajnagar" }],
   },
 };
+
+export const OPTIONS_TO_QUOTE = {
+  crops: [
+    { id: 1, label: "Tender Coconut", value: "Tender Coconut" },
+    { id: 2, label: "Turmeric", value: "Turmeric" },
+    { id: 3, label: "Banana", value: "Banana" },
+    { id: 4, label: "Dry Coconut", value: "Dry Coconut" },
+  ],
+  varieties: {
+    tenderCoconut: [{ id: 1, label: "Naati", value: "Naati" }],
+    turmeric: [{ id: 1, label: "Erode", value: "Erode" }],
+    banana: [
+      { id: 1, label: "G9", value: "G9" },
+      { id: 2, label: "Nendra", value: "Nendra" },
+      { id: 3, label: "Red", value: "Red" },
+      { id: 4, label: "Yellakki", value: "Yellakki" },
+    ],
+    dryCoconut: [],
+  },
+};

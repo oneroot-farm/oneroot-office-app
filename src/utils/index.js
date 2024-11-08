@@ -251,3 +251,19 @@ export const uploadFilesHandler = (files, path) => {
 
   return Promise.all(promises);
 };
+
+/**
+ * Converts a single phrase into camelCase format.
+ * @param {string} phrase - The phrase to be converted.
+ * @returns {string} - The phrase in camelCase format.
+ */
+export const convertToCamelCase = (phrase) => {
+  return phrase
+    .split(" ")
+    .map((word, index) =>
+      index === 0
+        ? word.toLowerCase()
+        : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    )
+    .join("");
+};
