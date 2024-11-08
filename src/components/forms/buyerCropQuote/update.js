@@ -244,6 +244,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                 fullWidth
                 label="Crop*"
                 variant="outlined"
+                disabled={true}
                 error={!!errors.crop}
                 message={errors.crop?.message}
                 onChange={(e) => {
@@ -270,9 +271,9 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                 fullWidth
                 label="Variety"
                 variant="outlined"
+                disabled={true}
                 error={!!errors.variety}
                 message={errors.variety?.message}
-                disabled={!watch()?.crop}
               >
                 {OPTIONS_TO_QUOTE?.varieties[
                   convertToCamelCase(watch()?.crop)
