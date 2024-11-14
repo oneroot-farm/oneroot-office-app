@@ -19,7 +19,7 @@ import Modal from "@/components/modal";
 import NoRows from "@/components/noRows";
 
 // Forms
-import UpdateUserForm from "@/components/forms/user/update";
+import UpdateUserForm from "@/components/forms/user/buyer/update";
 
 // Utils
 import { convertFromTimestampToDate } from "@/utils";
