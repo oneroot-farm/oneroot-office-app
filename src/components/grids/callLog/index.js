@@ -178,6 +178,12 @@ const CallLog = ({ data, isLoading = false, refetch }) => {
         valueGetter: ({ row }) => row.crop?.chutePercentage || "N/A",
       },
       {
+        field: "cropName",
+        headerName: "Crop",
+        flex: 1,
+        minWidth: 120,
+      },
+      {
         field: "firstLastHarvestDate",
         headerName: "First Last Harvest Date",
         flex: 1,
@@ -345,6 +351,7 @@ const CallLog = ({ data, isLoading = false, refetch }) => {
           initialState={{
             columns: {
               columnVisibilityModel: {
+                callId: false,
                 farmerName: false,
                 language: false,
                 actualReadyToHarvestDate: false,
