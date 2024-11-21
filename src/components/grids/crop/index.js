@@ -53,7 +53,12 @@ const CustomToolbar = () => (
   </GridToolbarContainer>
 );
 
-const Crop = ({ data, isLoading = false, refetch }) => {
+const Crop = ({
+  data,
+  refetch,
+  isLoading = false,
+  crop: cropName = "Tender Coconut",
+}) => {
   const { classes } = useStyles();
 
   const [crop, setCrop] = useState(null);
@@ -93,7 +98,8 @@ const Crop = ({ data, isLoading = false, refetch }) => {
   };
 
   const columns = useMemo(() => {
-    return [
+    // start
+    let base = [
       {
         field: "farmName",
         headerName: "Farm ID",
@@ -119,81 +125,6 @@ const Crop = ({ data, isLoading = false, refetch }) => {
         minWidth: 120,
       },
       {
-        field: "variety",
-        headerName: "Variety",
-        flex: 1,
-        minWidth: 120,
-        valueFormatter: ({ value }) => value || "N/A",
-      },
-      {
-        field: "numberOfTrees",
-        headerName: "Number Of Trees",
-        flex: 1,
-        minWidth: 120,
-      },
-      {
-        field: "ageOfTree",
-        headerName: "Age Of Tree",
-        flex: 1,
-        minWidth: 120,
-        valueFormatter: ({ value }) => `${value} years`,
-      },
-      {
-        field: "heightOfTree",
-        headerName: "Height Of Tree",
-        flex: 1,
-        minWidth: 120,
-        valueFormatter: ({ value }) => `${value} ft.`,
-      },
-      {
-        field: "numberOfNuts",
-        headerName: "Number Of Nuts",
-        flex: 1,
-        minWidth: 120,
-      },
-      {
-        field: "nutsFromLastHarvest",
-        headerName: "Nuts From Last Harvest",
-        flex: 1,
-        minWidth: 120,
-      },
-      {
-        field: "readyToHarvestDate",
-        headerName: "Next Harvest Date",
-        flex: 1,
-        minWidth: 120,
-      },
-      {
-        field: "actualReadyToHarvestDate",
-        headerName: "Actual Next Harvest Date",
-        flex: 1,
-        minWidth: 120,
-      },
-      {
-        field: "chutePercentage",
-        headerName: "Chute Percentage",
-        flex: 1,
-        minWidth: 120,
-      },
-      {
-        field: "firstLastHarvestDate",
-        headerName: "First Last Harvest Date",
-        flex: 1,
-        minWidth: 120,
-      },
-      {
-        field: "secondLastHarvestDate",
-        headerName: "Second Last Harvest Date",
-        flex: 1,
-        minWidth: 120,
-      },
-      {
-        field: "thirdLastHarvestDate",
-        headerName: "Third Last Harvest Date",
-        flex: 1,
-        minWidth: 120,
-      },
-      {
         field: "village",
         headerName: "Village",
         flex: 1,
@@ -206,44 +137,352 @@ const Crop = ({ data, isLoading = false, refetch }) => {
         minWidth: 120,
       },
       {
-        field: "cropsAvailable",
-        headerName: "Crops Available",
-        flex: 1,
-        minWidth: 120,
-        renderCell: ({ value }) => {
-          if (Array.isArray(value)) {
-            return value.join(", ");
-          }
-
-          return value || "N/A";
-        },
-      },
-      {
-        field: "isTenderCoconutFarm",
-        headerName: "Tender Coconut Farm",
-        flex: 1,
-        minWidth: 120,
-        renderCell: ({ value }) => (value ? "Yes" : "No"),
-      },
-      {
-        field: "isDryCoconutFarm",
-        headerName: "Dry Coconut Farm",
-        flex: 1,
-        minWidth: 120,
-        renderCell: ({ value }) => (value ? "Yes" : "No"),
-      },
-      {
-        field: "generalHarvestCycleInDays",
-        headerName: "General Harvest Cycle In Days",
-        flex: 1,
-        minWidth: 120,
-      },
-      {
         field: "paymentTerms",
         headerName: "Payment Terms",
         flex: 1,
         minWidth: 120,
       },
+    ];
+
+    // dynamic mid
+    switch (cropName) {
+      case "Tender Coconut":
+        base = [
+          ...base,
+          {
+            field: "variety",
+            headerName: "Variety",
+            flex: 1,
+            minWidth: 120,
+            valueFormatter: ({ value }) => value || "N/A",
+          },
+          {
+            field: "numberOfTrees",
+            headerName: "Number Of Trees",
+            flex: 1,
+            minWidth: 120,
+          },
+          {
+            field: "ageOfTree",
+            headerName: "Age Of Tree",
+            flex: 1,
+            minWidth: 120,
+            valueFormatter: ({ value }) => `${value} years`,
+          },
+          {
+            field: "heightOfTree",
+            headerName: "Height Of Tree",
+            flex: 1,
+            minWidth: 120,
+            valueFormatter: ({ value }) => `${value} ft.`,
+          },
+          {
+            field: "numberOfNuts",
+            headerName: "Number Of Nuts",
+            flex: 1,
+            minWidth: 120,
+          },
+          {
+            field: "nutsFromLastHarvest",
+            headerName: "Nuts From Last Harvest",
+            flex: 1,
+            minWidth: 120,
+          },
+          {
+            field: "readyToHarvestDate",
+            headerName: "Next Harvest Date",
+            flex: 1,
+            minWidth: 120,
+          },
+          {
+            field: "actualReadyToHarvestDate",
+            headerName: "Actual Next Harvest Date",
+            flex: 1,
+            minWidth: 120,
+          },
+          {
+            field: "chutePercentage",
+            headerName: "Chute Percentage",
+            flex: 1,
+            minWidth: 120,
+          },
+          {
+            field: "firstLastHarvestDate",
+            headerName: "First Last Harvest Date",
+            flex: 1,
+            minWidth: 120,
+          },
+          {
+            field: "secondLastHarvestDate",
+            headerName: "Second Last Harvest Date",
+            flex: 1,
+            minWidth: 120,
+          },
+          {
+            field: "thirdLastHarvestDate",
+            headerName: "Third Last Harvest Date",
+            flex: 1,
+            minWidth: 120,
+          },
+          {
+            field: "cropsAvailable",
+            headerName: "Crops Available",
+            flex: 1,
+            minWidth: 120,
+            renderCell: ({ value }) => {
+              if (Array.isArray(value)) {
+                return value.join(", ");
+              }
+
+              return value || "N/A";
+            },
+          },
+          {
+            field: "isTenderCoconutFarm",
+            headerName: "Tender Coconut Farm",
+            flex: 1,
+            minWidth: 120,
+            renderCell: ({ value }) => (value ? "Yes" : "No"),
+          },
+          {
+            field: "isDryCoconutFarm",
+            headerName: "Dry Coconut Farm",
+            flex: 1,
+            minWidth: 120,
+            renderCell: ({ value }) => (value ? "Yes" : "No"),
+          },
+          {
+            field: "generalHarvestCycleInDays",
+            headerName: "General Harvest Cycle In Days",
+            flex: 1,
+            minWidth: 120,
+          },
+        ];
+        break;
+
+      case "Banana":
+        base = [
+          ...base,
+          {
+            field: "bananaVariety",
+            headerName: "Variety",
+            flex: 1,
+            minWidth: 120,
+            valueFormatter: ({ value }) => value || "N/A",
+          },
+          {
+            field: "tarShape",
+            headerName: "Tar Shape",
+            flex: 1,
+            minWidth: 120,
+            valueFormatter: ({ value }) => value || "N/A",
+          },
+          {
+            field: "tarWeight",
+            headerName: "Tar Weight",
+            flex: 1,
+            minWidth: 120,
+            valueFormatter: ({ value }) => (value ? `${value} quintal` : "N/A"),
+          },
+          {
+            field: "numberOfBananaTrees",
+            headerName: "Number Of Banana Trees",
+            flex: 1,
+            minWidth: 120,
+            valueFormatter: ({ value }) => value || "N/A",
+          },
+          {
+            field: "numberOfBananaTreesRTH",
+            headerName: "Number Of Banana Trees RTH",
+            flex: 1,
+            minWidth: 120,
+            valueFormatter: ({ value }) => value || "N/A",
+          },
+          {
+            field: "bananaGeneralHarvestCycleInDays",
+            headerName: "Banana Harvest Cycle In Days",
+            flex: 1,
+            minWidth: 120,
+            valueFormatter: ({ value }) => value || "N/A",
+          },
+          {
+            field: "cutCount",
+            headerName: "Cut Count",
+            flex: 1,
+            minWidth: 120,
+            valueFormatter: ({ value }) => value || "N/A",
+          },
+          {
+            field: "cutType",
+            headerName: "Cut Type",
+            flex: 1,
+            minWidth: 120,
+            valueFormatter: ({ value }) => value || "N/A",
+          },
+          {
+            field: "bananaReadyToHarvestDate",
+            headerName: "Banana Ready To Harvest Date",
+            flex: 1,
+            minWidth: 120,
+            valueFormatter: ({ value }) => value || "N/A",
+          },
+        ];
+        break;
+
+      case "Turmeric":
+        base = [
+          ...base,
+          {
+            field: "region",
+            headerName: "Region",
+            flex: 1,
+            minWidth: 120,
+            valueFormatter: ({ value }) => value || "N/A",
+          },
+          {
+            field: "turmericVariety",
+            headerName: "Variety",
+            flex: 1,
+            minWidth: 120,
+            valueFormatter: ({ value }) => value || "N/A",
+          },
+          {
+            field: "isTurmericOrganic",
+            headerName: "Is Turmeric Organic",
+            flex: 1,
+            minWidth: 120,
+            renderCell: ({ value }) => (value ? "Yes" : "No"),
+          },
+          {
+            field: "turmericGeneralHarvestCycleInDays",
+            headerName: "Turmeric Harvest Cycle In Days",
+            flex: 1,
+            minWidth: 120,
+          },
+          {
+            field: "isPolished",
+            headerName: "Is Polished",
+            flex: 1,
+            minWidth: 120,
+            renderCell: ({ value }) => (value ? "Yes" : "No"),
+          },
+          {
+            field: "isUnpolished",
+            headerName: "Is Unpolished",
+            flex: 1,
+            minWidth: 120,
+            renderCell: ({ value }) => (value ? "Yes" : "No"),
+          },
+          {
+            field: "isSinglePolished",
+            headerName: "Is Single Polished",
+            flex: 1,
+            minWidth: 120,
+            renderCell: ({ value }) => (value ? "Yes" : "No"),
+          },
+          {
+            field: "isDoublePolished",
+            headerName: "Is Double Polished",
+            flex: 1,
+            minWidth: 120,
+            renderCell: ({ value }) => (value ? "Yes" : "No"),
+          },
+          {
+            field: "turmericReadyToHarvestDate",
+            headerName: "Turmeric Ready To Harvest Date",
+            flex: 1,
+            minWidth: 120,
+            valueFormatter: ({ value }) => value || "N/A",
+          },
+          {
+            field: "totalTurmericQuantity",
+            headerName: "Total Turmeric Quantity",
+            flex: 1,
+            minWidth: 120,
+            valueFormatter: ({ value }) => (value ? `${value} quintal` : "N/A"),
+          },
+          {
+            field: "fingerQuantity",
+            headerName: "Finger Quantity",
+            flex: 1,
+            minWidth: 120,
+            valueFormatter: ({ value }) => (value ? `${value} quintal` : "N/A"),
+          },
+          {
+            field: "bulbQuantity",
+            headerName: "Bulb Quantity",
+            flex: 1,
+            minWidth: 120,
+            valueFormatter: ({ value }) => (value ? `${value} quintal` : "N/A"),
+          },
+          {
+            field: "isIPM",
+            headerName: "Is IPM",
+            flex: 1,
+            minWidth: 120,
+            renderCell: ({ value }) => (value ? "Yes" : "No"),
+          },
+        ];
+        break;
+
+      case "Dry Coconut":
+        base = [
+          ...base,
+          {
+            field: "isDryCoconutHarvested",
+            headerName: "Is Dry Coconut Harvested",
+            flex: 1,
+            minWidth: 120,
+            renderCell: ({ value }) => (value ? "Yes" : "No"),
+          },
+          {
+            field: "isOnTree",
+            headerName: "Is Dry Coconut On Tree",
+            flex: 1,
+            minWidth: 120,
+            renderCell: ({ value }) => (value ? "Yes" : "No"),
+          },
+          {
+            field: "numberOfDryCoconutsAvailable",
+            headerName: "Number Of Dry Coconuts Available",
+            flex: 1,
+            minWidth: 120,
+            valueFormatter: ({ value }) => value || "N/A",
+          },
+          {
+            field: "isWithHusk",
+            headerName: "Is With Husk",
+            flex: 1,
+            minWidth: 120,
+            renderCell: ({ value }) => (value ? "Yes" : "No"),
+          },
+          {
+            field: "isWithSemiHusk",
+            headerName: "Is With Semi Husk",
+            flex: 1,
+            minWidth: 120,
+            renderCell: ({ value }) => (value ? "Yes" : "No"),
+          },
+          {
+            field: "dryCoconutGeneralHarvestCycleInDays",
+            headerName: "Dry Coconut Harvest Cycle In Days",
+            flex: 1,
+            minWidth: 120,
+          },
+          {
+            field: "dryCoconutReadyToHarvestDate",
+            headerName: "Dry Coconut Ready To Harvest Date",
+            flex: 1,
+            minWidth: 120,
+            valueFormatter: ({ value }) => value || "N/A",
+          },
+        ];
+        break;
+    }
+
+    // end
+    base = [
+      ...base,
       {
         field: "tags",
         headerName: "Tags",
@@ -295,7 +534,9 @@ const Crop = ({ data, isLoading = false, refetch }) => {
         ),
       },
     ];
-  }, []);
+
+    return base;
+  }, [cropName]);
 
   return (
     <>
@@ -322,20 +563,44 @@ const Crop = ({ data, isLoading = false, refetch }) => {
           initialState={{
             columns: {
               columnVisibilityModel: {
+                village: false,
                 language: false,
+                paymentTerms: false,
+
+                // tender coconut
                 actualReadyToHarvestDate: false,
                 firstLastHarvestDate: false,
                 secondLastHarvestDate: false,
                 thirdLastHarvestDate: false,
                 cropsAvailable: false,
-                village: false,
                 ageOfTree: false,
                 heightOfTree: false,
                 isTenderCoconutFarm: false,
                 isDryCoconutFarm: false,
                 generalHarvestCycleInDays: false,
                 chutePercentage: false,
-                paymentTerms: false,
+
+                // banana
+                tarWeight: false,
+                cutType: false,
+                numberOfBananaTrees: false,
+                bananaGeneralHarvestCycleInDays: false,
+                bananaGeneralHarvestCycleInDays: false,
+
+                // turmeric
+                isTurmericOrganic: false,
+                turmericGeneralHarvestCycleInDays: false,
+                isPolished: false,
+                isUnpolished: false,
+                isSinglePolished: false,
+                isDoublePolished: false,
+                fingerQuantity: false,
+                bulbQuantity: false,
+
+                // dry coconut
+                isWithSemiHusk: false,
+                isWithHusk: false,
+                dryCoconutGeneralHarvestCycleInDays: false,
               },
             },
 

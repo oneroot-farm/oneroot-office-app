@@ -121,18 +121,10 @@ export const IPM_ORGANIC_TYPES = [
 ];
 
 export const CROPS = [
-  { id: 1, label: "Banana", value: "Banana" },
-  { id: 2, label: "Turmeric", value: "Turmeric" },
-  { id: 3, label: "Raagi", value: "Raagi" },
-  { id: 4, label: "Corn", value: "Corn" },
-  { id: 5, label: "Sugarcane", value: "Sugarcane" },
-  { id: 6, label: "Potato", value: "Potato" },
-  { id: 7, label: "Areca Nut", value: "Areca Nut" },
-  { id: 8, label: "Tomato", value: "Tomato" },
-  { id: 9, label: "Onion", value: "Onion" },
-  { id: 10, label: "Nutmeg", value: "Nutmeg" },
-  { id: 11, label: "Dry Coconut", value: "Dry Coconut" },
-  { id: 12, label: "Others", value: "Others" },
+  { id: 1, label: "Tender Coconut", value: "Tender Coconut" },
+  { id: 2, label: "Banana", value: "Banana" },
+  { id: 3, label: "Turmeric", value: "Turmeric" },
+  { id: 4, label: "Dry Coconut", value: "Dry Coconut" },
 ];
 
 export const TALUKS = [

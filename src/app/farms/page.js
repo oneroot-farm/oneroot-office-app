@@ -22,14 +22,17 @@ import SelectInput from "@/components/inputs/selectInput";
 import { getTimeframeDates } from "@/utils";
 
 // Constants
-import { TIMEFRAMES as BASE_TIMEFRAMES } from "@/constants";
+import { TIMEFRAMES as BASE_TIMEFRAMES, CROPS } from "@/constants";
 
 const schema = z.object({
   timeframe: z.string().nonempty("Timeframe is required"),
+
+  crop: z.string().nonempty("Crop is required"),
 });
 
 const defaultValues = {
   timeframe: "today",
+  crop: "Tender Coconut",
 };
 
 const Farms = () => {
@@ -51,8 +54,7 @@ const Farms = () => {
   const [farms, setFarms] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const loadReference = useRef(true);
-  const timeframeReference = useRef(defaultValues.timeframe);
+  const loadReference = useRef(false);
 
   const refetch = async () => {
     await fetchFarms();
@@ -62,9 +64,37 @@ const Farms = () => {
     try {
       setIsLoading(true);
 
-      const { timeframe } = getValues();
+      const { timeframe, crop } = getValues();
 
       const { startDate, endDate } = getTimeframeDates(timeframe);
+
+      // define the field name based on the crop
+      let field = "";
+
+      switch (crop) {
+        case "Tender Coconut":
+          field = "readyToHarvestDate";
+          break;
+
+        case "Banana":
+          field = "bananaReadyToHarvestDate";
+          break;
+
+        case "Turmeric":
+          field = "turmericReadyToHarvestDate";
+          break;
+
+        case "Dry Coconut":
+          field = "dryCoconutReadyToHarvestDate";
+          break;
+
+        default:
+          toast.error("invalid crop type");
+
+          setIsLoading(false);
+
+          return;
+      }
 
       const reference = collection(db, "crops");
 
@@ -78,14 +108,14 @@ const Farms = () => {
         q = query(
           reference,
           where(
-            "readyToHarvestDate",
+            field,
             ">=",
             startDate
               .toDate()
               .toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" })
           ),
           where(
-            "readyToHarvestDate",
+            field,
             "<=",
             endDate
               .toDate()
@@ -120,23 +150,21 @@ const Farms = () => {
     }
   };
 
+  const { timeframe, crop } = watch();
+
   useEffect(() => {
     if (loadReference.current) {
-      loadReference.current = false;
-
-      fetchFarms(getValues().timeframe);
+      fetchFarms();
     }
-  }, []);
-
-  const timeframe = watch("timeframe");
+  }, [timeframe, crop]);
 
   useEffect(() => {
-    if (!loadReference.current && timeframeReference.current !== timeframe) {
-      timeframeReference.current = timeframe;
+    if (!loadReference.current) {
+      loadReference.current = true;
 
-      fetchFarms(timeframe);
+      fetchFarms();
     }
-  }, [timeframe]);
+  }, []);
 
   return (
     <Box
@@ -167,8 +195,30 @@ const Farms = () => {
         )}
       />
 
+      {/* Crop */}
+      <Controller
+        name="crop"
+        control={control}
+        render={({ field }) => (
+          <SelectInput
+            {...field}
+            fullWidth
+            label="Crop*"
+            variant="outlined"
+            error={!!errors.crop}
+            message={errors.crop?.message}
+          >
+            {CROPS.map((s) => (
+              <MenuItem key={s.value} value={s.value}>
+                {s.label}
+              </MenuItem>
+            ))}
+          </SelectInput>
+        )}
+      />
+
       {/* Grid */}
-      <CropGrid data={farms} refetch={refetch} />
+      <CropGrid crop={crop} data={farms} refetch={refetch} />
 
       {/* Loader */}
       <Loader open={isLoading} />
