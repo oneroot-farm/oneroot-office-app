@@ -20,7 +20,7 @@ import CropGrid from "@/components/grids/crop";
 import TextInput from "@/components/inputs/textInput";
 
 // Forms
-import CreateCropForm from "@/components/forms/crop/create";
+import CreateFarmForm from "@/components/forms/farm/create";
 
 // Icons
 import SearchIcon from "@mui/icons-material/Search";
@@ -175,14 +175,14 @@ const Crops = () => {
       {/* Grid */}
       <CropGrid data={crops} refetch={refetch} />
 
-      {/* Create Crop Modal */}
+      {/* Create Farm Modal */}
       <Modal
         open={modal.create}
         header={"New Farm Form"}
         modalStyles={{ padding: "1rem" }}
         handleClose={() => closeModal("create")}
       >
-        <CreateCropForm
+        <CreateFarmForm
           refetch={refetch}
           fields={{
             mobileNumber: getValues().mobileNumber,

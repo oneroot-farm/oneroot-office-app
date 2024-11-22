@@ -85,6 +85,16 @@ export const TIMEFRAMES = [
   { id: 3, label: "This Week", value: "thisWeek" },
 ];
 
+export const TAR_SHAPES = [{ id: 1, label: "Conical", value: "Conical" }];
+
+export const CUT_TYPES = [{ id: 1, label: "Box", value: "Box" }];
+
+export const BANANA_VARIETIES = [
+  { id: 2, label: "Nendra", value: "Nendra" },
+  { id: 3, label: "Red", value: "Red" },
+  { id: 4, label: "Yellakki", value: "Yellakki" },
+];
+
 export const COCONUT_VARIETIES = [
   { id: 1, label: "Deejay", value: "Deejay" },
   { id: 2, label: "Naati", value: "Naati" },

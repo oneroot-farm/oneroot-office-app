@@ -20,6 +20,7 @@ import NoRows from "@/components/noRows";
 
 // Forms
 import UpdateCropForm from "@/components/forms/crop/update";
+import UpdateFarmForm from "@/components/forms/farm/update";
 import ConfirmQCRequest from "@/components/forms/qc/confirm";
 
 // Utils
@@ -621,6 +622,12 @@ const Crop = ({
           refetch={refetch}
           handleModalClose={() => closeModal("update")}
         />
+
+        {/* <UpdateFarmForm
+          fields={crop}
+          refetch={refetch}
+          handleModalClose={() => closeModal("update")}
+        /> */}
       </Modal>
 
       {/* Create QC Request Confirmation */}
