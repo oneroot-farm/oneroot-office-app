@@ -99,7 +99,6 @@ const schema = z.object({
       heightOfTree: z
         .number()
         .nonnegative("Please enter a valid height of tree")
-        .refine((value) => value !== 0, "Height of tree can not be zero")
         .refine(
           (value) => !isNaN(value),
           "Height of tree must be a valid number"
@@ -158,16 +157,13 @@ const schema = z.object({
   // turmeric
   turmeric: z
     .object({
-      region: z.string().min(1, "Region is required"),
+      region: z.string(),
 
       numberOfAcres: z
         .number()
         .nonnegative("Please enter a valid number of acres"),
 
-      turmericVariety: z
-        .string()
-        .nullable()
-        .refine((val) => val !== "", "Turmeric variety is required"),
+      turmericVariety: z.string().nullable(),
 
       isTurmericOrganic: z.boolean().nullable(),
 
@@ -179,15 +175,9 @@ const schema = z.object({
 
       isIPM: z.boolean().nullable(),
 
-      isTurmericOrganic: z.boolean().nullable(),
-
       turmericGeneralHarvestCycleInDays: z
         .number()
         .nonnegative("Please enter a valid general harvest cycle in days")
-        .refine(
-          (value) => value !== 0,
-          "General harvest cycle in days can not be zero"
-        )
         .refine(
           (value) => !isNaN(value),
           "General harvest cycle in days must be a valid number"
@@ -224,22 +214,15 @@ const schema = z.object({
   // banana
   banana: z
     .object({
-      bananaVariety: z
-        .string()
-        .nullable()
-        .refine((val) => val !== "", "Banana variety is required"),
+      bananaVariety: z.string().nullable(),
 
-      tarShape: z.string().refine((val) => val !== "", "Tar shape is required"),
+      tarShape: z.string(),
 
-      tarWeight: z
-        .number()
-        .nonnegative("Please enter a valid tar weight")
-        .refine((value) => !isNaN(value), "Tar weight must be a valid number"),
+      tarWeight: z.number().nonnegative("Please enter a valid tar weight"),
 
       numberOfBananaTrees: z
         .number()
         .nonnegative("Please enter a valid number of trees")
-        .refine((value) => value !== 0, "Number of trees can not be zero")
         .refine(
           (value) => !isNaN(value),
           "Number of trees must be a valid number"
@@ -248,7 +231,6 @@ const schema = z.object({
       numberOfBananaTreesRTH: z
         .number()
         .nonnegative("Please enter a valid number of trees")
-        .refine((value) => value !== 0, "Number of trees can not be zero")
         .refine(
           (value) => !isNaN(value),
           "Number of trees must be a valid number"
@@ -258,10 +240,6 @@ const schema = z.object({
         .number()
         .nonnegative("Please enter a valid general harvest cycle in days")
         .refine(
-          (value) => value !== 0,
-          "General harvest cycle in days can not be zero"
-        )
-        .refine(
           (value) => !isNaN(value),
           "General harvest cycle in days must be a valid number"
         ),
@@ -269,10 +247,9 @@ const schema = z.object({
       cutCount: z
         .number()
         .nonnegative("Please enter a valid cut count")
-        .refine((value) => value !== 0, "Cut count can not be zero")
         .refine((value) => !isNaN(value), "Cut count must be a valid number"),
 
-      cutType: z.string().refine((val) => val !== "", "Cut type is required"),
+      cutType: z.string(),
 
       isBananaReadyToHarvest: z.boolean().nullable(),
     })
@@ -289,10 +266,6 @@ const schema = z.object({
         .number()
         .nonnegative("Please enter a valid number of dry coconuts available")
         .refine(
-          (value) => value !== 0,
-          "Dry coconuts available can not be zero"
-        )
-        .refine(
           (value) => !isNaN(value),
           "Dry coconuts available must be a valid number"
         ),
@@ -304,10 +277,6 @@ const schema = z.object({
       dryCoconutGeneralHarvestCycleInDays: z
         .number()
         .nonnegative("Please enter a valid general harvest cycle in days")
-        .refine(
-          (value) => value !== 0,
-          "General harvest cycle in days can not be zero"
-        )
         .refine(
           (value) => !isNaN(value),
           "General harvest cycle in days must be a valid number"
@@ -932,7 +901,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                     {...rest}
                     fullWidth
                     type="number"
-                    label="Height Of Tree (in ft.)*"
+                    label="Height Of Tree (in ft.)"
                     variant="outlined"
                     inputProps={{
                       step: 0.1,
@@ -954,7 +923,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                     {...rest}
                     fullWidth
                     type="number"
-                    label="Age Of Tree (in years)*"
+                    label="Age Of Tree (in years)"
                     variant="outlined"
                     inputProps={{
                       step: 0.1,
@@ -1065,7 +1034,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                   <SelectInput
                     {...field}
                     fullWidth
-                    label="Is Ready To Harvest*"
+                    label="Is Ready To Harvest"
                     variant="outlined"
                     error={!!errors?.tenderCoconut?.isReadyToHarvest}
                     message={errors?.tenderCoconut?.isReadyToHarvest?.message}
@@ -1093,7 +1062,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                   <TextInput
                     {...field}
                     fullWidth
-                    label="Region*"
+                    label="Region"
                     variant="outlined"
                     error={!!errors?.turmeric?.region}
                     helperText={errors?.turmeric?.region?.message}
@@ -1108,7 +1077,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                   <SelectInput
                     {...field}
                     fullWidth
-                    label="Variety*"
+                    label="Variety"
                     variant="outlined"
                     error={!!errors?.turmeric?.turmericVariety}
                     message={errors?.turmeric?.turmericVariety?.message}
@@ -1130,7 +1099,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                     {...rest}
                     fullWidth
                     type="number"
-                    label="Number Of Acres*"
+                    label="Number Of Acres"
                     variant="outlined"
                     inputProps={{
                       step: 0.1,
@@ -1149,7 +1118,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                   <SelectInput
                     {...field}
                     fullWidth
-                    label="Is Turmeric Organic*"
+                    label="Is Turmeric Organic"
                     variant="outlined"
                     error={!!errors?.turmeric?.isTurmericOrganic}
                     message={errors?.turmeric?.isTurmericOrganic?.message}
@@ -1170,7 +1139,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                   <SelectInput
                     {...field}
                     fullWidth
-                    label="Is Turmeric Polished*"
+                    label="Is Turmeric Polished"
                     variant="outlined"
                     error={!!errors?.turmeric?.isPolished}
                     message={errors?.turmeric?.isPolished?.message}
@@ -1189,7 +1158,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                   <SelectInput
                     {...field}
                     fullWidth
-                    label="Is Turmeric Single Polished*"
+                    label="Is Turmeric Single Polished"
                     variant="outlined"
                     error={!!errors?.turmeric?.isSinglePolished}
                     message={errors?.turmeric?.isSinglePolished?.message}
@@ -1210,7 +1179,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                   <SelectInput
                     {...field}
                     fullWidth
-                    label="Is Turmeric Double Polished*"
+                    label="Is Turmeric Double Polished"
                     variant="outlined"
                     error={!!errors?.turmeric?.isDoublePolished}
                     message={errors?.turmeric?.isDoublePolished?.message}
@@ -1231,7 +1200,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                   <SelectInput
                     {...field}
                     fullWidth
-                    label="Is Turmeric IPM*"
+                    label="Is Turmeric IPM"
                     variant="outlined"
                     error={!!errors?.turmeric?.isIPM}
                     message={errors?.turmeric?.isIPM?.message}
@@ -1251,7 +1220,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                     {...rest}
                     fullWidth
                     type="number"
-                    label="General Harvest Cycle In Days*"
+                    label="General Harvest Cycle In Days"
                     variant="outlined"
                     error={
                       !!errors?.turmeric?.turmericGeneralHarvestCycleInDays
@@ -1275,7 +1244,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                     {...rest}
                     fullWidth
                     type="number"
-                    label="Total Quantity (in quintal)*"
+                    label="Total Quantity (in quintal)"
                     variant="outlined"
                     inputProps={{
                       step: 0.1,
@@ -1297,7 +1266,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                     {...rest}
                     fullWidth
                     type="number"
-                    label="Total Finger Quantity (in quintal)*"
+                    label="Total Finger Quantity (in quintal)"
                     variant="outlined"
                     inputProps={{
                       step: 0.1,
@@ -1319,7 +1288,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                     {...rest}
                     fullWidth
                     type="number"
-                    label="Total Bulb Quantity (in quintal)*"
+                    label="Total Bulb Quantity (in quintal)"
                     variant="outlined"
                     inputProps={{
                       step: 0.1,
@@ -1338,7 +1307,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                   <SelectInput
                     {...field}
                     fullWidth
-                    label="Is Ready To Harvest*"
+                    label="Is Ready To Harvest"
                     variant="outlined"
                     error={!!errors?.turmeric?.isTurmericOrganic}
                     message={errors?.turmeric?.isTurmericOrganic?.message}
@@ -1366,7 +1335,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                   <SelectInput
                     {...field}
                     fullWidth
-                    label="Variety*"
+                    label="Variety"
                     variant="outlined"
                     error={!!errors?.banana?.bananaVariety}
                     message={errors?.banana?.bananaVariety?.message}
@@ -1385,7 +1354,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                   <SelectInput
                     {...field}
                     fullWidth
-                    label="Tar Shape*"
+                    label="Tar Shape"
                     variant="outlined"
                     error={!!errors?.banana?.tarShape}
                     message={errors?.banana?.tarShape?.message}
@@ -1407,7 +1376,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                     {...rest}
                     fullWidth
                     type="number"
-                    label="Tar Weight (In Quintals)*"
+                    label="Tar Weight (In Quintals)"
                     variant="outlined"
                     inputProps={{
                       step: 0.1,
@@ -1427,7 +1396,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                     {...rest}
                     fullWidth
                     type="number"
-                    label="Number Of Banana Trees*"
+                    label="Number Of Banana Trees"
                     variant="outlined"
                     error={!!errors?.banana?.numberOfBananaTrees}
                     helperText={errors?.banana?.numberOfBananaTrees?.message}
@@ -1446,7 +1415,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                     {...rest}
                     fullWidth
                     type="number"
-                    label="Number Of Banana Trees RTH*"
+                    label="Number Of Banana Trees RTH"
                     variant="outlined"
                     error={!!errors?.banana?.numberOfBananaTreesRTH}
                     helperText={errors?.banana?.numberOfBananaTreesRTH?.message}
@@ -1463,7 +1432,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                     {...rest}
                     fullWidth
                     type="number"
-                    label="General Harvest Cycle In Days*"
+                    label="General Harvest Cycle In Days"
                     variant="outlined"
                     error={!!errors?.banana?.bananaGeneralHarvestCycleInDays}
                     helperText={
@@ -1484,7 +1453,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                     {...rest}
                     fullWidth
                     type="number"
-                    label="Cut Count*"
+                    label="Cut Count"
                     variant="outlined"
                     error={!!errors?.banana?.cutCount}
                     helperText={errors?.banana?.cutCount?.message}
@@ -1500,7 +1469,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                   <SelectInput
                     {...field}
                     fullWidth
-                    label="Cut Type*"
+                    label="Cut Type"
                     variant="outlined"
                     error={!!errors?.banana?.cutType}
                     message={errors?.banana?.cutType?.message}
@@ -1521,7 +1490,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                   <SelectInput
                     {...field}
                     fullWidth
-                    label="Is Ready To Harvest*"
+                    label="Is Ready To Harvest"
                     variant="outlined"
                     error={!!errors?.banana?.isBananaReadyToHarvest}
                     message={errors?.banana?.isBananaReadyToHarvest?.message}
@@ -1549,7 +1518,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                   <SelectInput
                     {...field}
                     fullWidth
-                    label="Is Dry Coconut Harvested*"
+                    label="Is Dry Coconut Harvested"
                     variant="outlined"
                     error={!!errors?.dryCoconut?.isDryCoconutHarvested}
                     message={errors?.dryCoconut?.isDryCoconutHarvested?.message}
@@ -1568,7 +1537,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                   <SelectInput
                     {...field}
                     fullWidth
-                    label="Is On Tree*"
+                    label="Is On Tree"
                     variant="outlined"
                     error={!!errors?.dryCoconut?.isOnTree}
                     message={errors?.dryCoconut?.isOnTree?.message}
@@ -1590,7 +1559,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                     {...rest}
                     fullWidth
                     type="number"
-                    label="Number Of Dry Coconuts Available*"
+                    label="Number Of Dry Coconuts Available"
                     variant="outlined"
                     error={!!errors?.dryCoconut?.numberOfDryCoconutsAvailable}
                     helperText={
@@ -1608,7 +1577,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                   <SelectInput
                     {...field}
                     fullWidth
-                    label="Is With Husk*"
+                    label="Is With Husk"
                     variant="outlined"
                     error={!!errors?.dryCoconut?.isWithHusk}
                     message={errors?.dryCoconut?.isWithHusk?.message}
@@ -1629,7 +1598,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                   <SelectInput
                     {...field}
                     fullWidth
-                    label="Is With Semi Husk*"
+                    label="Is With Semi Husk"
                     variant="outlined"
                     error={!!errors?.dryCoconut?.isWithSemiHusk}
                     message={errors?.dryCoconut?.isWithSemiHusk?.message}
@@ -1649,7 +1618,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                     {...rest}
                     fullWidth
                     type="number"
-                    label="General Harvest Cycle In Days*"
+                    label="General Harvest Cycle In Days"
                     variant="outlined"
                     error={
                       !!errors?.dryCoconut?.dryCoconutGeneralHarvestCycleInDays
@@ -1672,7 +1641,7 @@ const Update = ({ fields, refetch, handleModalClose }) => {
                   <SelectInput
                     {...field}
                     fullWidth
-                    label="Is Ready To Harvest*"
+                    label="Is Ready To Harvest"
                     variant="outlined"
                     error={!!errors?.dryCoconut?.isDryCoconutReadyToHarvest}
                     message={
