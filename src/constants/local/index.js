@@ -93,6 +93,7 @@ export const BANANA_VARIETIES = [
   { id: 2, label: "Nendra", value: "Nendra" },
   { id: 3, label: "Red", value: "Red" },
   { id: 4, label: "Yellakki", value: "Yellakki" },
+  { id: 5, label: "G9", value: "G9" },
 ];
 
 export const COCONUT_VARIETIES = [
